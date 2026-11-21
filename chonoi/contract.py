@@ -26,12 +26,16 @@ def load_contract(path=DEFAULT_PATH) -> dict:
         raise BadInput(f"không đọc được {path}: {e}")
     if not isinstance(c, dict):
         raise BadInput("contract phải là object")
-    if c.get("contract_version") not in ("1.0", "1.1", "1.2"):
+    if c.get("contract_version") not in ("1.0", "1.1", "1.2", "1.3"):
         raise BadInput("contract_version chưa hỗ trợ")
     tuning = c.get("tuning")
     validate_tuning(tuning)
-    if (c.get("contract_version") == "1.2") != ("freshness" in tuning):
-        raise BadInput("freshness chỉ được khai và bắt buộc với contract v1.2")
+    if (c.get("contract_version") in ("1.2", "1.3")) != ("freshness" in tuning):
+        raise BadInput("freshness bắt buộc với contract v1.2/v1.3")
+    if c.get("contract_version") == "1.3":
+        for command in ("bench_cmd", "soak_cmd"):
+            if not isinstance(c.get(command), str) or not c[command].strip():
+                raise BadInput(f"{command} phải là lệnh khác rỗng")
     return c
 
 

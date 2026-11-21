@@ -61,7 +61,7 @@ def read_inventory(path: str, kinds=None, *, contract_version="1.1") -> dict | l
         raise BadInput("file kho chỉ được có khóa gốc 'items'")
     if kinds is None:
         kinds = KINDS_P1 if contract_version == "1.0" else KINDS_P2
-    if contract_version == "1.2":
+    if contract_version in ("1.2", "1.3"):
         return validate_individuals(data["items"], kinds)
     if contract_version in ("1.0", "1.1"):
         return validate_items(data["items"], kinds)
@@ -77,7 +77,7 @@ def hold_to_items(hold: list) -> dict:
 
 
 def write_inventory(path: str, items: dict | list, *, contract_version="1.1", kinds=KINDS_P2):
-    if contract_version == "1.2":
+    if contract_version in ("1.2", "1.3"):
         items = sort_by_id(validate_individuals(items, kinds))
     elif contract_version in ("1.0", "1.1"):
         items = {k: items[k] for k in sorted(items) if items[k] > 0}

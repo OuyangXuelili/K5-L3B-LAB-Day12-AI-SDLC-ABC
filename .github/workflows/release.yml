@@ -1,0 +1,31 @@
+name: release
+on:
+  push:
+    tags: [v1.0.0]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify both release tags point to main
+        shell: bash
+        run: |
+          test "$(git rev-parse phase-4^{commit})" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Regression
+        run: python3 -m unittest discover -s tests -v
+      - name: Build portable archive
+        run: python3 tools/package_release.py
+      - name: Publish release with archive and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create v1.0.0 dist/chonoi-v1.0.0.zip dist/chonoi-v1.0.0.zip.sha256 --verify-tag --title "Quán Ăn Chợ Nổi v1.0.0" --notes-file docs/release-v1.0.0.md

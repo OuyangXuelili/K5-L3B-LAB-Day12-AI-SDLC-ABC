@@ -1,0 +1,2 @@
+# Optional QA dependency; playing and headless use only the Python standard library.
+playwright==1.60.0

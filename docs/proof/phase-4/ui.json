@@ -1,0 +1,67 @@
+[
+  {
+    "mode": "gather",
+    "warnings": [
+      ".monster-warning",
+      ".oxygen-warning"
+    ],
+    "contrast_persisted": true,
+    "page_errors": [],
+    "fixture": {
+      "player": {
+        "pos": [
+          50,
+          15
+        ],
+        "oxygen_ticks": 200
+      },
+      "random_fish": false,
+      "monsters": [
+        {
+          "id": "M1",
+          "kind": "ca_sau",
+          "pos": [
+            60,
+            24
+          ],
+          "waypoints": [
+            [
+              60,
+              24
+            ],
+            [
+              64,
+              24
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "mode": "quan",
+    "warnings": [
+      ".customer-warning"
+    ],
+    "contrast_persisted": true,
+    "page_errors": [],
+    "fixture": {
+      "random_customers": false,
+      "stock": [
+        {
+          "id": "I1",
+          "kind": "ca_loc",
+          "fresh": 100
+        }
+      ],
+      "customers": [
+        {
+          "id": "C1",
+          "table_id": "T1",
+          "dish_id": "ca_loc_nuong_trui",
+          "patience_ticks_left": 800
+        }
+      ]
+    }
+  }
+]

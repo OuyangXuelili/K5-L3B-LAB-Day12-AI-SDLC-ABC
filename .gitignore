@@ -10,3 +10,5 @@ __pycache__/
 
 # Local PDF tools and scratch files
 tmp/
+dist/
+tmp-*.json

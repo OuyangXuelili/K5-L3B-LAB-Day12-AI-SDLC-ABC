@@ -1,5 +1,23 @@
 # Nhật ký dùng AI (theo phase và theo người)
 
+## Phase 4 — phần Cường, 21/11/2026
+
+- Lượt chỉnh văn phong: thành viên xác nhận nhóm đã thảo luận; cập nhật TEAM,
+  retro, standup và phản tư theo xác nhận đó. Giữ số đo và trạng thái phát hành
+  theo bằng chứng, không tự tạo commit trong lượt chỉnh này.
+- Rà hồ sơ trước push: kiểm liên kết nội bộ, rút phản tư Cường và Phan Anh về
+  giới hạn 200 từ, rà đủ file và tạo lại ZIP với tài liệu cập nhật.
+
+- Lượt hoàn thiện hồ sơ: bổ sung submission, kế hoạch P4, cập nhật kết quả ma trận
+  và số liệu retro từ Git/bằng chứng; không bổ sung lời nhận xét giả của thành viên.
+
+- Codex đọc Ticket-04 và mã main, hỗ trợ triển khai trên nhánh cuonglk theo yêu cầu.
+- Phạm vi: contract 1.3, soak, benchmark, cảnh báo/tương phản, đóng gói, test và tài liệu.
+- Bằng chứng được sinh bằng lệnh tại docs/proof/phase-4, không nhập số đo bằng tay.
+- Lỗi phát hiện: truyền chuỗi tiếng Việt qua terminal làm mất dấu; vòng kiểm UI đầu
+  còn thiếu lời gọi cập nhật cảnh báo. Đã sửa, chạy lại trình duyệt và lưu ảnh.
+- Không có thống kê token/chi phí. Chưa có review con người hoặc công bố release.
+
 ## Phiên hỗ trợ Phan Anh — 21/11/2026
 
 - Phase 2, alpha19102004: Codex triển khai theo Ticket-02 người dùng cung cấp;

@@ -1,0 +1,15 @@
+{
+  "day": {"money": 200, "earned": 200},
+  "gather": {
+    "hold": [{"id": "I1", "kind": "ca_loc", "fresh": 100}],
+    "time_left_ticks": 600,
+    "random_fish": false,
+    "monsters": []
+  },
+  "quan": {
+    "player": {"pos": [2, 8]},
+    "time_left_ticks": 1800,
+    "random_customers": false,
+    "customers": [{"id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui"}]
+  }
+}

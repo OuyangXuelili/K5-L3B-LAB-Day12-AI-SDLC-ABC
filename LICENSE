@@ -1,0 +1,13 @@
+Licensing notice
+
+This repository contains the educational starter from
+VinUni-AI20k/K5-L3B-LAB-Day12-AI-SDLC and team ABC's lab contributions.
+The inherited starter did not include an explicit license at the baseline used
+for this release. This notice does not grant rights over that upstream work.
+Contact the upstream author before redistribution outside the course.
+
+The game has no bundled third-party artwork, fonts, music or sound effects.
+The browser uses system fonts and shapes drawn by the project's own code.
+Playwright is an optional development dependency (Apache-2.0), not vendored in
+the release archive. Chromium is installed separately through Playwright and
+retains its own third-party notices and licenses.
