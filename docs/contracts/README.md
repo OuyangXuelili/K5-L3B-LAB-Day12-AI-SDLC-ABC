@@ -1,5 +1,13 @@
 # Hợp đồng tích hợp (nên chốt sớm; hình thức do nhóm chọn)
 
+## Cập nhật Phase 3 theo Ticket-03 / v1.2
+
+- File kho dùng một khóa gốc `items` chứa mảng `{id,kind,fresh}`. ID duy nhất, khác rỗng, loại thuộc danh mục nguyên liệu, độ tươi hữu hạn từ 0 đến 100. Kho rỗng dùng mảng rỗng. Mẫu chạy được ở [inventory.phase3.sample.json](inventory.phase3.sample.json).
+- CLI đọc schema theo `contract_version`. V1.2 từ chối kho đếm bằng mã 2. File xuất được sắp theo ID số và thay thế nguyên tử khi kết thúc gather. Trong `day`, cùng cá thể được chuyển trong bộ nhớ ngay tick chuyển pha. Sức chứa chỉ áp dụng lên giỏ.
+- `gather.hold`, `quan.stock` và snapshot kho dùng mảng cá thể. Thứ tự giỏ dùng cho LIFO. Snapshot `customers[].reserved` dùng mảng ID. `available_stock` vẫn là số lượng khả dụng theo loại. Món tại bếp hoặc trên tay có `{order_id,dish_id,base_price}`.
+- `spoiled` có `{item_id,kind,location}` với `location` là `hold` hoặc `stock`. `cook_started.data.items` ghi đúng cá thể đã tiêu, sắp theo loại rồi ID. `lost` của hit/ngất ghi các cá thể theo thứ tự rơi LIFO. `gather_end.data.inventory` khớp schema file.
+- Độ tươi được xét trước khi làm tròn. Snapshot, event và file kho giữ giá trị đủ chính xác quanh 30. Xem [ADR 0003](../adr/0003-phase3-ticket-03.md) về quyết định đổi schema.
+
 ## Cập nhật Phase 2 theo Ticket-02 / v1.1
 
 Phần này thay các mô tả P1 bên dưới nếu có khác biệt. [ADR 0002](../adr/0002-phase2-v11.md)

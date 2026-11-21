@@ -6,7 +6,7 @@
 - Phase 2 / Ticket-02 v1.1: `python tools/verify_phase2.py` (test P1+P2, replay ngày/Shop, kho và benchmark; sinh `docs/proof/phase-2/verification.json`).
 - Chơi vòng 5 ngày: `python -m chonoi.live --mode day --days 5`; headless: `python -m chonoi.headless --mode day --days 1 --seed 7 --ticks 22200 --out out.jsonl`.
 - Kiểm tra phần Phase 1 trên Windows/Linux: `python tools/verify_phase1.py` (sinh bằng chứng tại `docs/proof/phase-1/verification.json`).
-- Kiểm file kho: `python tools/check_inventory.py docs/contracts/inventory.sample.json` (mã 0 hợp lệ, 2 sai dữ liệu).
+- Kiểm file kho: `python tools/check_inventory.py --contract-version 1.0 docs/contracts/inventory.sample.json` (mã 0 hợp lệ, 2 sai dữ liệu).
 - Test: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v`
 - Headless: `python3 -m chonoi.headless --mode gather|quan --seed 1 --ticks 600 --out out.jsonl`
 - Chơi thử trên trình duyệt: `python3 -m chonoi.live --mode gather|quan` (mở địa chỉ in ra; WASD, E, Space, R)
@@ -30,8 +30,15 @@
 - Sáng tạo thêm được khuyến khích nhưng phải tắt ở headless (xem README, mục "Tự do sáng tạo").
 
 ## Skills / hooks của nhóm
-- `verify_phase2`: chạy trước bàn giao phần Phan Anh; kiểm chứng đồng thời luật cũ và mới. `check_inventory` nay nhận đủ 6 id của Ticket-02; thử `python tools/check_inventory.py docs/contracts/inventory.phase2.sample.json`.
+- `verify_phase2`: chạy trước bàn giao phần Phan Anh; kiểm chứng đồng thời luật cũ và mới. `check_inventory` nay nhận đủ 6 id của Ticket-02; thử `python tools/check_inventory.py --contract-version 1.1 docs/contracts/inventory.phase2.sample.json`.
 - V1.1 theo Ticket-02 người dùng cung cấp: đọc ADR 0002 trước tích hợp. Khung phải đổi để hỗ trợ day/pause/buy; event kết thúc giữ pha cũ, snapshot pha mới có phase_tick=0. Không dùng kết quả test tự viết để khẳng định đã qua test ẩn hoặc review con người.
 - `verify_phase1`: chạy trước khi bàn giao phần Quang; test toàn repo, kiểm TEAM/kho, replay cùng seed và probe hái → cập bến → quán. Command của nhóm nằm ở `tools/verify_phase1.py`.
 - `check_inventory`: chạy khi nhận/đổi file kho để phát hiện sai schema/id/số lượng; dùng `tools/check_inventory.py`.
 - Nguồn Phase 1: PRD-0 / Test Contract v1.0 tại tab Phase 1 trên lab board (link trong README, cần đăng nhập Claude để đọc dữ liệu). Phần gather đã đối chiếu D–G; ADR 0001 ghi thay đổi khi đối chiếu. Không coi test gather đạt là toàn Phase 1 hoàn tất.
+
+## Kiểm chứng Phase 3
+- Test Contract v1.2. Chạy `python tools/verify_phase2.py --out docs/proof/phase-3/verification.json` cho bộ test hiện hành, probe file/day và benchmark.
+- Kiểm kho cá thể bằng `python tools/check_inventory.py docs/contracts/inventory.phase3.sample.json`. Đọc ADR 0003 trước khi sửa luật độ tươi hoặc schema.
+- Dùng tiêu chí chính thức trên Chợ Nổi Lab để cập nhật [ma trận Phase 3](docs/verification/phase-3.md). Ghi chỗ chưa rõ vào `docs/clarify.md`.
+- Khi làm trước một tiêu chí, dùng fixture tự cung cấp trạng thái ban đầu theo Test Contract nếu có thể. Kiểm lại luồng tích hợp với đầu ra thật khi các phần phụ thuộc sẵn sàng.
+- Chạy lại bộ test hiện có khi tích hợp và đối chiếu với [mốc kiểm chứng starter](docs/proof/phase-3/starter-baseline.md).

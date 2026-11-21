@@ -1,0 +1,32 @@
+{
+  "ticket": "Ticket-03 Mua Nuoc Noi",
+  "contract_version": "1.2",
+  "source_url": "https://claude.ai/artifact/E35v787wSx2wDgPTNhMVDg#phase-3",
+  "user_confirmed_team_inventory_change": true,
+  "images": [
+    {
+      "filename": "claude.png",
+      "sha256": "0bf6b2f254218d3f3ea02851dc778e007dd263a70b38d871acb8cded67193994"
+    },
+    {
+      "filename": "page2.png",
+      "sha256": "99dda235bdfa9197f9b50f1a5c0c975db422bc46c38466384a4ea830aff4798f"
+    },
+    {
+      "filename": "page3.png",
+      "sha256": "b397699f5298a20d89497fd949ec39554fdb5387f9895aab77efb80bda99c8bb"
+    },
+    {
+      "filename": "page4.png",
+      "sha256": "151646be5fe537babc173fae5f9fd17fd5359247491647915f60096354c43ca3"
+    },
+    {
+      "filename": "page5.png",
+      "sha256": "00476ed0eba024f620228050a90d522be283a47302113ae72fd730f01f3caf59"
+    },
+    {
+      "filename": "page6.png",
+      "sha256": "9ba2e4db2019236b10fadedc6be650f207ea6255603746f02379e8a4c5ccc7e5"
+    }
+  ]
+}

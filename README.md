@@ -3,6 +3,17 @@
 > **Làm theo nhóm 4–6 người** · Dùng AI để xây game 2D qua **4 phase** trong **3 giờ**: Út Sen lặn bắt cá, hái rau trên mặt nước rồi tối mở quán phục vụ khách.
 > **Yêu cầu từng phase mở đúng mốc giờ tại lab board:** **[Chợ Nổi Lab](https://claude.ai/artifact/E35v787wSx2wDgPTNhMVDg)** (cần đăng nhập claude.ai; có trợ giảng AI cho từng phase).
 
+## Nhóm ABC — Mạnh, Phase 3 / Mùa Nước Nổi
+
+Nguyên liệu có ID và độ tươi riêng. Giỏ và kho báo hàng ươn. Quán giữ cá thể tươi nhất cho từng đơn và chốt giá khi bắt đầu nấu. Hợp đồng v1.2 dùng kho cá thể cho cả file và vòng ngày.
+
+```powershell
+python -m chonoi.live --mode day --days 2 --seed 7 --scenario docs/scenarios/phase-3-demo.json
+python tools/verify_phase2.py --out docs/proof/phase-3/verification.json
+```
+
+Demo dựng sẵn một cá thể có độ tươi 30 để thấy nhãn **Ươn** ngay sau khi bắt đầu lặn. Tiêu chí và bằng chứng nằm trong [bàn giao Phase 3](docs/verification/phase-3.md). Cách cập nhật fixture ở [CHANGELOG.md](CHANGELOG.md).
+
 ## Nhóm ABC — Phan Anh, Phase 2 / Ticket-02
 
 Đã tích hợp contract v1.1: quán có 2 bếp, 4 bàn, 6 món; khách giữ nguyên liệu,
@@ -26,7 +37,7 @@ Demo rút ngắn **có tiền/kho dựng sẵn**, không phải bằng chứng h
 ```powershell
 python -m chonoi.live --mode day --days 2 --scenario docs/scenarios/phase-2-demo.json
 python -m chonoi.headless --mode day --days 1 --seed 7 --ticks 22200 --out out.jsonl
-python tools/check_inventory.py docs/contracts/inventory.phase2.sample.json
+python tools/check_inventory.py --contract-version 1.1 docs/contracts/inventory.phase2.sample.json
 ```
 
 Chế độ độc lập vẫn hỗ trợ gather xuất kho và quan nạp kho theo lệnh bên dưới.
@@ -54,7 +65,7 @@ Chỉ cần Python 3, không cài dependency hay API key:
 
 ```powershell
 python tools/verify_phase1.py
-python tools/check_inventory.py docs/contracts/inventory.sample.json
+python tools/check_inventory.py --contract-version 1.0 docs/contracts/inventory.sample.json
 python -m chonoi.live --mode gather
 ```
 

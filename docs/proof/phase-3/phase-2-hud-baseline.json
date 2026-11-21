@@ -1,0 +1,69 @@
+{
+  "status": "passed",
+  "git_revision": "df64d6436a682d599346e96fda8dfb35c537b740",
+  "mode": "day",
+  "days": 2,
+  "seed": 7,
+  "browser": "Chrome 157.0.8103.79 headless via Playwright",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "fps_samples_at_gather": [
+    110.5,
+    143.8,
+    144
+  ],
+  "screenshot": "phase-2-gather-hud.png",
+  "scenario": {
+    "day": {
+      "money": 200,
+      "earned": 200
+    },
+    "gather": {
+      "hold": [
+        "ca_loc",
+        "bong_sung",
+        "bong_sung"
+      ],
+      "random_fish": false
+    },
+    "quan": {
+      "time_left_ticks": 180,
+      "random_customers": false
+    }
+  },
+  "transferred_inventory": {
+    "bong_sung": 2,
+    "ca_loc": 1
+  },
+  "phase_checks": [
+    "menu",
+    "day intro",
+    "gather HUD",
+    "pause and resume",
+    "evening inventory",
+    "restaurant HUD",
+    "day result",
+    "buy oxygen",
+    "next-day charged capacity",
+    "two-day summary"
+  ],
+  "pause": {
+    "sim_tick": 210,
+    "time_left_ticks": 10590,
+    "resumed": true
+  },
+  "purchase": {
+    "money": 0,
+    "earned": 200,
+    "level": 1,
+    "next_day_oxygen_ticks": 2700
+  },
+  "end": {
+    "days_completed": 2,
+    "reason": "days_complete"
+  },
+  "page_or_game_request_errors": [],
+  "limitation": "Local automated baseline using fixture stock and money; no manual review performed."
+}

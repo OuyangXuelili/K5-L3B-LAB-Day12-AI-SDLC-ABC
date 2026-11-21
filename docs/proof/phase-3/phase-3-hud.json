@@ -1,0 +1,96 @@
+{
+  "status": "passed",
+  "source_tree": "Phase 3 working tree",
+  "mode": "day",
+  "days": 2,
+  "seed": 7,
+  "contract_version": "1.2",
+  "browser": "Chrome 157.0.8103.79 headless via Playwright",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "fps_samples_at_gather": [
+    82.9,
+    144,
+    144
+  ],
+  "screenshot": "phase-3-gather-hud.png",
+  "scenario": {
+    "day": {
+      "money": 200,
+      "earned": 200
+    },
+    "gather": {
+      "hold": [
+        {
+          "id": "I1",
+          "kind": "ca_loc",
+          "fresh": 100
+        },
+        {
+          "id": "I2",
+          "kind": "bong_sung",
+          "fresh": 70
+        },
+        {
+          "id": "I3",
+          "kind": "bong_sung",
+          "fresh": 30
+        }
+      ],
+      "random_fish": false
+    },
+    "quan": {
+      "time_left_ticks": 180,
+      "random_customers": false
+    }
+  },
+  "transferred_inventory": [
+    {
+      "id": "I1",
+      "kind": "ca_loc",
+      "fresh": 98.15
+    },
+    {
+      "id": "I2",
+      "kind": "bong_sung",
+      "fresh": 68.15
+    },
+    {
+      "id": "I3",
+      "kind": "bong_sung",
+      "fresh": 28.15
+    }
+  ],
+  "phase_checks": [
+    "menu",
+    "day intro",
+    "gather freshness and spoiled badge",
+    "pause freezes age",
+    "evening inventory",
+    "restaurant freshness and spoiled badge",
+    "day result",
+    "buy oxygen",
+    "next-day charged capacity",
+    "two-day summary"
+  ],
+  "pause": {
+    "sim_tick": 215,
+    "time_left_ticks": 10585,
+    "resumed": true
+  },
+  "purchase": {
+    "money": 0,
+    "earned": 200,
+    "level": 1,
+    "next_day_oxygen_ticks": 2700
+  },
+  "end": {
+    "days_completed": 2,
+    "reason": "days_complete"
+  },
+  "page_or_game_request_errors": [],
+  "limitation": "Local browser verification using fixture stock and money; no manual review performed.",
+  "verified_code_commit": "ea6f85a2b3f1769da73c3d49c7d41b1722ea8e81"
+}
