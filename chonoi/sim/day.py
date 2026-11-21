@@ -47,7 +47,7 @@ class DaySim:
         self.child = GatherSim(effective, block, self.rng, self.ids)
         self.child.money, self.child.earned, self.child.reputation = self.money, self.earned, self.reputation
         self.phase, self.phase_tick = "gather", 0
-        self.day_plan = copy.deepcopy(self.plans[self.day])
+        self.day_plan = copy.deepcopy(self.plans[(self.day - 1) % len(self.tuning["day_plan"]) + 1])
         self.day_start_reputation = self.reputation
 
     def _event(self, name, data=None, phase=None, day=None):

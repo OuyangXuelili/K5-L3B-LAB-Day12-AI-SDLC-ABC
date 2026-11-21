@@ -15,12 +15,12 @@ from chonoi.inventory import read_inventory
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Validate an inventory without changing it")
     parser.add_argument("path", nargs="?", type=Path)
-    parser.add_argument("--contract-version", choices=("1.0", "1.1", "1.2"))
+    parser.add_argument("--contract-version", choices=("1.0", "1.1", "1.2", "1.3"))
     args = parser.parse_args(argv)
     try:
         version = args.contract_version or load_contract()["contract_version"]
         samples = {"1.0": "inventory.sample.json", "1.1": "inventory.phase2.sample.json",
-                   "1.2": "inventory.phase3.sample.json"}
+                   "1.2": "inventory.phase3.sample.json", "1.3": "inventory.phase3.sample.json"}
         path = args.path or ROOT / "docs" / "contracts" / samples[version]
         items = read_inventory(path, contract_version=version)
     except BadInput as exc:
