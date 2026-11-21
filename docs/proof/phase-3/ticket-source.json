@@ -27,6 +27,11 @@
     {
       "filename": "page6.png",
       "sha256": "9ba2e4db2019236b10fadedc6be650f207ea6255603746f02379e8a4c5ccc7e5"
+    },
+    {
+      "filename": "Screenshot.png",
+      "sha256": "a655491c7393e664b0b506d2f3a89930673599a638980082d111803d96779f97",
+      "section": "Contract v1.2 / Scenario: base_price"
     }
   ]
 }

@@ -24,6 +24,8 @@ Trong demo, chọn **Chơi** và **Xuống nước**. Giỏ có sẵn ba cá th�
 
 ## Phạm vi bằng chứng
 
+- Ảnh bổ sung xác nhận `base_price` là giá đã chốt theo độ tươi, khớp với kiểm tra AC-P3-04 trên bản `phase-3`. [Dấu vết ảnh nguồn](../proof/phase-3/ticket-source.json)
+
 - Bản chuẩn trước thay đổi có 97 test đạt và [kiểm HUD Phase 2 trên Chrome](../proof/phase-3/phase-2-hud-baseline.json). [Mốc starter](../proof/phase-3/starter-baseline.md) ghi riêng 32 test ban đầu.
 - Các assertion v1.1 cần đổi do giỏ, kho, `lost`, món trên tay và giá đổi schema hoặc luật. Các kiểm tra thứ tự sự kiện, giới hạn sức chứa, LIFO, thu tiền, pause, Shop và chuyển pha vẫn chạy. Chi tiết chuyển fixture nằm trong [CHANGELOG.md](../../CHANGELOG.md).
 - Ảnh và FPS đo bằng Chrome headless trên máy hiện tại với fixture demo. Người dùng xác nhận đã review và đồng ý đẩy bản bàn giao. Kết quả test ẩn chưa được xác nhận.
