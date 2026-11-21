@@ -23,7 +23,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from .contract import load_contract
 from .errors import BadInput
-from .inputs import LiveInputs
+from .inputs import BUTTONS_V11, LiveInputs
 from .inventory import read_inventory
 from .runner import Session
 from .scenario import load_scenario
@@ -37,8 +37,8 @@ RECENT_EVENTS = 40
 class LiveGame:
     """Một lượt chơi + luồng nền bước 60 tick/s. Mọi truy cập trạng thái đi qua khóa."""
 
-    def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None):
-        self._args = (mode, tuning, scenario, seed, inventory)
+    def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None, days=1):
+        self._args = (mode, tuning, scenario, seed, inventory, days)
         self.mode = mode
         self.tuning = tuning
         self.inventory_out = inventory_out
@@ -49,8 +49,10 @@ class LiveGame:
 
     def _reset(self):
         self.session = Session(*self._args)
-        self.inputs = LiveInputs()
-        self.events = []
+        self.inputs = LiveInputs(BUTTONS_V11)
+        self.events = self.session.initial_rows()
+        self.screen = "Menu" if self.mode == "day" else None
+        self.intro_ticks = 0
         self._saved = False
         self.error = None
 
@@ -84,11 +86,25 @@ class LiveGame:
 
     def _tick_once(self):
         s = self.session
+        if self.screen is not None:
+            if self.screen == "DayIntro" and not s.paused:
+                self.intro_ticks += 1
+                if self.intro_ticks >= 4 * self.tuning["tick_hz"]:
+                    self.screen = None
+            return
         if s.done:
             return
+        phase, day = s.sim.phase, getattr(s.sim, "day", None)
         for row in s.step(self.inputs.advance()):
             self.events.append(row)
         del self.events[:-RECENT_EVENTS]
+        if self.mode == "day":
+            if s.done:
+                self.screen = "Summary"
+            elif getattr(s.sim, "day", None) != day:
+                self.screen, self.intro_ticks = "DayIntro", 0
+            elif s.sim.phase != phase:
+                self.screen = "EveningIntro" if s.sim.phase == "quan" else "DayResult"
         if s.done and not self._saved:
             self._saved = True
             if self.inventory_out:
@@ -101,7 +117,10 @@ class LiveGame:
     def state_json(self) -> bytes:
         with self._lock:
             snap = self.session.snapshot()
-            snap["meta"] = self.tuning[self.mode]
+            snap["meta"] = self.tuning[self.session.sim.phase if self.mode == "day" else self.mode]
+            snap["catalog"] = self.tuning["menu"]
+            snap["shop_catalog"] = self.tuning.get("shop", {})
+            snap["screen"] = self.screen
             snap["events"] = list(self.events)
             snap["finished"] = self.session.done
             snap["reason"] = self.session.sim.reason if self.session.done else None
@@ -116,12 +135,31 @@ class LiveGame:
             if not ok:
                 raise ValueError("move phải là [a, b] trong [-1, 1]")
         buttons = {}
-        for b in ("interact", "catch"):
+        for b in BUTTONS_V11:
             if b in body:
                 if not isinstance(body[b], bool):
                     raise ValueError(f"{b} phải là boolean")
                 buttons[b] = body[b]
+        if "buy" in body:
+            if not isinstance(body["buy"], str) or not body["buy"]:
+                raise ValueError("buy phải là chuỗi khác rỗng")
+            buttons["buy"] = body["buy"]
+        for b in ("continue", "menu"):
+            if b in body and not isinstance(body[b], bool):
+                raise ValueError(b + " phải là boolean")
         with self._lock:
+            if body.get("menu"):
+                self._reset()
+                self.screen = "Menu"
+                return
+            if self.screen and body.get("continue"):
+                if self.screen == "Menu":
+                    self.screen, self.intro_ticks = ("DayIntro" if self.mode == "day" else None), 0
+                elif self.screen == "Summary":
+                    self._reset()
+                else:
+                    self.screen = None
+                return
             self.inputs.set(move, **buttons)
 
     def restart(self):
@@ -215,7 +253,8 @@ class LiveServer:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="chonoi.live", description="Chơi trực tiếp trên trình duyệt (starter).")
-    p.add_argument("--mode", required=True, choices=["gather", "quan"])
+    p.add_argument("--mode", required=True, choices=["gather", "quan", "day"])
+    p.add_argument("--days", type=int)
     p.add_argument("--seed", type=int, default=1)
     p.add_argument("--port", type=int, default=8000, help="0 = cổng ngẫu nhiên")
     p.add_argument("--host", default="127.0.0.1")
@@ -224,6 +263,8 @@ def main(argv=None) -> int:
     p.add_argument("--inventory-out", dest="inventory_out", help="chỉ với gather: ghi kho khi kết thúc buổi")
     a = p.parse_args(argv)
     try:
+        if a.days is not None and (a.mode != "day" or not 1 <= a.days <= 5):
+            raise BadInput("--days chỉ dùng với day, trong [1,5]")
         if a.inventory and a.mode != "quan":
             raise BadInput("--inventory chỉ dùng với quan")
         if a.inventory_out and a.mode != "gather":
@@ -233,7 +274,7 @@ def main(argv=None) -> int:
         inventory = read_inventory(a.inventory) if a.inventory else None
         if inventory is not None and "stock" in scenario:
             raise BadInput("vừa có quan.stock vừa có --inventory")
-        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out)
+        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out, a.days or 1)
         server = LiveServer(game, a.host, a.port)
     except BadInput as e:
         sys.stderr.write(f"đầu vào sai: {e}\n")
@@ -242,7 +283,8 @@ def main(argv=None) -> int:
         sys.stderr.write(f"không mở được cổng {a.port}: {e}\n")
         return 1
     server.start()
-    print(f"Mở trình duyệt tại {server.url}  (chế độ {a.mode}, seed {a.seed}). Ctrl+C để dừng.", flush=True)
+    # Windows console có thể là cp1252; địa chỉ phải luôn in được để mở game.
+    print(f"Open {server.url}  (mode {a.mode}, seed {a.seed}). Ctrl+C to stop.", flush=True)
     try:
         while True:
             time.sleep(0.5)
