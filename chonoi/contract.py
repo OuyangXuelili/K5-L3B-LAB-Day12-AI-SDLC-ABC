@@ -89,15 +89,18 @@ def _validate_gather(g):
         if not isinstance(n, dict) or not isinstance(n.get("id"), str) or n["id"] in seen:
             raise BadInput("tuning.gather.nodes: mỗi nút cần id duy nhất")
         seen.add(n["id"])
-        if n.get("kind") not in ("bong_dien_dien", "bong_sung"):
+        if n.get("kind") not in ("bong_dien_dien", "bong_sung", "keo_neo"):
             raise BadInput(f"tuning.gather.nodes.{n['id']}: kind phải là bong_dien_dien hoặc bong_sung")
         kinds.add(n["kind"])
         _pos_in(f"gather.nodes.{n['id']}.pos", n.get("pos"), b, ("x", "d"))
         if n["pos"][1] != 0:
             raise BadInput(f"tuning.gather.nodes.{n['id']}: nút hái nằm ở mặt nước (d = 0)")
-    if kinds != {"bong_dien_dien", "bong_sung"}:
+    if not {"bong_dien_dien", "bong_sung"} <= kinds:
         raise BadInput("tuning.gather.nodes phải có ít nhất một nút mỗi loại (bong_dien_dien, bong_sung)")
     fish = g.get("fish_initial")
+    if isinstance(fish, int) and not isinstance(fish, bool):
+        _int_between("gather.fish_initial", fish, 1, g.get("fish_max", 12))
+        return
     if not isinstance(fish, list) or len(fish) != 6:
         raise BadInput("tuning.gather.fish_initial phải là danh sách đúng 6 đàn")
     seen = set()
@@ -146,3 +149,51 @@ def validate_tuning(t):
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:
             raise BadInput(f"menu.{dish_id}: price (nguyên) và cook_s phải > 0")
+        from .inventory import validate_items
+        if not validate_items(d.get("recipe")) or any(v <= 0 for v in d["recipe"].values()):
+            raise BadInput(f"menu.{dish_id}: recipe phải khác rỗng, lượng dương")
+    if "shop" in t:
+        _validate_v11(t)
+
+
+def _validate_v11(t):
+    from .planning import validate_plans
+    g, q = t["gather"], t["quan"]
+    validate_plans(t.get("day_plan"), t["menu"], require_all=True)
+    _int_between("shop.max_ticks", t["shop"].get("max_ticks"), 1, 10000)
+    for kind, field in (("oxygen", "oxygen_max_s"), ("hp", "hp_max")):
+        levels = t["shop"].get("upgrades", {}).get(kind)
+        if not isinstance(levels, list) or not levels:
+            raise BadInput("shop cần các cấp nâng oxygen/hp")
+        for level, item in enumerate(levels, 1):
+            if not isinstance(item, dict) or item.get("level") != level:
+                raise BadInput("cấp nâng phải liên tiếp từ 1")
+            _int_between("shop.price", item.get("price"), 1, 1000000)
+            _between("shop." + field, item.get(field), 1, 100000)
+    for array in ("stoves", "tables"):
+        seen = set()
+        for item in q[array]:
+            if not isinstance(item.get("id"), str) or not item["id"] or item["id"] in seen:
+                raise BadInput("bếp/bàn cần id duy nhất")
+            seen.add(item["id"])
+            _pos_in("quan." + array, item.get("pos"), q["bounds"], ("x", "z"))
+    for key in ("fish_turn_ticks", "fish_max", "fish_spawn_ticks"):
+        _int_between("gather." + key, g.get(key), 1, 100000)
+    for key in ("fish_speed", "fish_spawn_clearance"):
+        _between("gather." + key, g.get(key), 0, 100)
+    for kind in ("ca_linh", "ca_loc", "ca_keo"):
+        _between("fish_weights." + kind, g["fish_weights"].get(kind), 0.000001, 1)
+        if kind not in g["fish_yield"]:
+            raise BadInput("fish_yield cần đủ 3 loại")
+        depths = g["fish_depths"].get(kind)
+        if not isinstance(depths, list) or len(depths) != 2 or not all(_num(v) for v in depths) or not 0 < depths[0] < depths[1] <= g["bounds"]["d"][1]:
+            raise BadInput("fish_depths không hợp lệ")
+        if not g["fish_spawn_depths"].get(kind) or any(not _num(v) or not depths[0] <= v <= depths[1] for v in g["fish_spawn_depths"][kind]):
+            raise BadInput("fish_spawn_depths không hợp lệ")
+    monsters = g["monsters"]
+    _int_between("invuln_ticks", monsters["invuln_ticks"], 1, 100000)
+    _between("loss_ratio", monsters["loss_ratio"], 0, 1)
+    for species in monsters["species"].values():
+        for field in ("patrol_speed", "chase_speed", "detect_radius", "exit_radius", "hit_radius", "recoil_dist"):
+            _between("monsters." + field, species.get(field), 0.000001, 1000)
+        _int_between("monsters.recoil_ticks", species.get("recoil_ticks"), 1, 100000)

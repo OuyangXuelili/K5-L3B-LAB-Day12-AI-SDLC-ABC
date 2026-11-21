@@ -7,3 +7,6 @@ __pycache__/
 .env.*
 !.env.example
 .venv/
+
+# Local PDF tools and scratch files
+tmp/

@@ -14,6 +14,7 @@ import math
 from ..ids import sort_by_id
 from ..inventory import hold_to_items
 from .ramp import ramp_velocity
+from .aquatic import init_monsters, seed_fish, swim_and_spawn, update_monsters
 
 AXES = ("x", "d")
 
@@ -28,6 +29,8 @@ class GatherSim:
         self.tick_hz = tuning["tick_hz"]
         self.rng = streams
         self.ids = ids
+        self.phase_tick = 0
+        self.random_fish = scenario.get("random_fish", True)
         p = scenario.get("player", {})
         self.pos = [float(c) for c in p.get("pos", t["start_pos"])]
         self.vel = [float(c) for c in p.get("vel", [0.0, 0.0])]
@@ -53,10 +56,14 @@ class GatherSim:
             src_fish = []
         # Đàn cá đứng yên ở phase này. Cá bơi / sinh thêm là việc của phase sau.
         self.fish = [{"id": f["id"], "kind": f["kind"], "pos": [float(c) for c in f["pos"]],
-                      "heading_deg": f.get("heading_deg", 0)} for f in src_fish]
+                      "heading_deg": f.get("heading_deg", 0), "age_ticks": f.get("age_ticks", 0)}
+                     for f in ([] if isinstance(src_fish, int) else src_fish)]
         for coll in (self.nodes, self.fish):
             for e in coll:
                 ids.reserve(e["id"])
+        if isinstance(src_fish, int):
+            seed_fish(self, src_fish)
+        init_monsters(self, scenario)
         self.money = 0
         self.earned = 0
         self.reputation = tuning["quan"]["reputation_initial"]
@@ -73,14 +80,16 @@ class GatherSim:
                        "oxygen_ticks": self.oxygen_ticks, "oxygen_max_ticks": self.oxygen_max,
                        "hp": self.hp, "hp_max": self.t["hp_max"], "zero_oxy_ticks": self.zero_oxy_ticks,
                        "catch_cd_ticks": self.catch_cd_ticks,
+                       "invuln_ticks": self.invuln_ticks,
                        "at_surface": self._at_surface()},
             "hold": self.hold, "hold_count": len(self.hold),
             "hold_capacity": self.t["hold_capacity"],
             "nodes": [{"id": n["id"], "pos": n["pos"], "kind": n["kind"],
                        "ready": n["regrow_ticks"] == 0, "regrow_ticks": n["regrow_ticks"]}
                       for n in sort_by_id(self.nodes)],
-            "fish": [{"id": f["id"], "pos": f["pos"], "kind": f["kind"], "heading_deg": f["heading_deg"]}
+            "fish": [{"id": f["id"], "pos": f["pos"], "kind": f["kind"], "heading_deg": f["heading_deg"], "age_ticks": f["age_ticks"]}
                      for f in sort_by_id(self.fish)],
+            "monsters": sort_by_id(self.monsters),
         }
 
     # --- một bước ---------------------------------------------------------------
@@ -88,9 +97,11 @@ class GatherSim:
         if self.done:
             return []
         events = []
+        self.phase_tick += 1
         # 1. đồng hồ và hàng có sẵn: giảm bộ đếm, nút mọc lại
         self.time_left_ticks = max(0, self.time_left_ticks - 1)
         self.catch_cd_ticks = max(0, self.catch_cd_ticks - 1)
+        self.invuln_ticks = max(0, self.invuln_ticks - 1)
         for n in sort_by_id(self.nodes):
             if n["regrow_ticks"] > 0:
                 n["regrow_ticks"] -= 1
@@ -109,6 +120,13 @@ class GatherSim:
             events.append(("faint", {"cause": "choke", "lost": lost, "hp": 0}))
             self._finish("fainted", events)
             return events
+        update_monsters(self, events)
+        if self.hp == 0:
+            lost = list(reversed(self.hold))
+            self.hold.clear()
+            events.append(("faint", {"cause": "monster", "lost": lost, "hp": 0}))
+            self._finish("fainted", events)
+            return events
         # 3. interact: bến trước, rồi hái
         if inp.pressed("interact"):
             if self._in_dock():
@@ -122,6 +140,8 @@ class GatherSim:
         # 5. hết giờ
         if self.time_left_ticks <= 0:
             self._finish("time", events)
+        else:
+            swim_and_spawn(self, events)
         return events
 
     # --- tiện ích ---------------------------------------------------------------

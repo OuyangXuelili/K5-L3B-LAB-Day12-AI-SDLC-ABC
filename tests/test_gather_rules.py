@@ -26,6 +26,8 @@ class GatherRules(unittest.TestCase):
         self.tuning = copy.deepcopy(load_contract()["tuning"])
 
     def sim(self, **scenario):
+        # Ticket-02 4.3: giữ fixture cá P1 đứng yên để tiếp tục kiểm luật bắt cũ.
+        scenario.setdefault("random_fish", False)
         return GatherSim(self.tuning, scenario, Streams(7), IdAllocator())
 
     def test_underwater_oxygen_spends_one_tick(self):
@@ -257,7 +259,7 @@ class GatherRules(unittest.TestCase):
 class GatherHeadless(unittest.TestCase):
     def test_invalid_gather_fixture_fails_before_writing_either_output(self):
         invalid = [
-            {"player": {"invuln_ticks": 1}},
+            {"player": {"invuln_ticks": -1}},  # v1.1 nhận invuln_ticks không âm
             {"player": {"heading_deg": float("nan")}},
             {"player": {"vel": [float("inf"), 0]}},
             {"player": {"oxygen_ticks": 1, "zero_oxy_ticks": 1}},
@@ -345,7 +347,7 @@ class GatherHeadless(unittest.TestCase):
     def test_gameplay_replay_is_byte_identical_with_unsorted_entities(self):
         with Workdir() as w:
             scenario = write_json(w.path("scenario.json"), {"gather": {
-                "player": {"pos": [20, 5]}, "time_left_ticks": 60,
+                "player": {"pos": [20, 5]}, "time_left_ticks": 60, "random_fish": False,
                 "fish": [{"id": "F10", "kind": "ca_loc", "pos": [21, 5]},
                          {"id": "F2", "kind": "ca_linh", "pos": [19, 5]}],
             }})
