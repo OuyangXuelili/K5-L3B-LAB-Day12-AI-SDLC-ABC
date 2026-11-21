@@ -6,13 +6,14 @@ phải có đúng một món, khách eating thiếu giá/tip...) — xem PRD-0 m
 """
 
 import json
+import math
 
 from .errors import BadInput
 from .inventory import KINDS_P1, validate_items
 
 GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "time_left_ticks"}
 GATHER_PLAYER_KEYS = {"pos", "vel", "heading_deg", "hp", "oxygen_ticks", "zero_oxy_ticks",
-                      "invuln_ticks", "catch_cd_ticks"}
+                      "catch_cd_ticks"}
 NODE_KINDS = ("bong_dien_dien", "bong_sung")
 FISH_KINDS = ("ca_linh", "ca_loc")
 QUAN_PLAYER_KEYS = {"pos", "vel"}
@@ -64,7 +65,7 @@ def load_scenario(path, mode: str, tuning: dict) -> dict:
 
 
 def _num(v):
-    return isinstance(v, (int, float)) and not isinstance(v, bool)
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
 
 
 def _nonneg_int(name, v):
@@ -107,7 +108,7 @@ def _validate_gather(b, tuning):
         raise BadInput("player.vel phải là [x, d]")
     if "heading_deg" in p and not _num(p["heading_deg"]):
         raise BadInput("player.heading_deg phải là số")
-    for key in ("invuln_ticks", "catch_cd_ticks", "zero_oxy_ticks", "oxygen_ticks", "hp"):
+    for key in ("catch_cd_ticks", "zero_oxy_ticks", "oxygen_ticks", "hp"):
         if key in p:
             _nonneg_int(f"player.{key}", p[key])
     omax = int(round(g["oxygen_max_s"] * 60))
@@ -123,6 +124,8 @@ def _validate_gather(b, tuning):
         if p["zero_oxy_ticks"] > 0 and not (oxy == 0 and pos[1] > g["surface_depth"]):
             raise BadInput("player.zero_oxy_ticks > 0 chỉ khi oxy = 0 và đang dưới nước")
     for n in b.get("nodes", []):
+        if set(n) - {"id", "kind", "pos", "regrow_ticks"}:
+            raise BadInput(f"nodes.{n['id']}: có trường lạ/chưa hỗ trợ")
         if n.get("kind") not in NODE_KINDS:
             raise BadInput(f"nodes.{n['id']}: kind phải là một trong {NODE_KINDS}")
         _pos(f"nodes.{n['id']}.pos", n.get("pos"), bounds)
@@ -131,6 +134,8 @@ def _validate_gather(b, tuning):
         if "regrow_ticks" in n:
             _nonneg_int(f"nodes.{n['id']}.regrow_ticks", n["regrow_ticks"])
     for f in b.get("fish", []):
+        if set(f) - {"id", "kind", "pos", "heading_deg"}:
+            raise BadInput(f"fish.{f['id']}: có trường lạ/chưa hỗ trợ")
         if f.get("kind") not in FISH_KINDS:
             raise BadInput(f"fish.{f['id']}: kind phải là một trong {FISH_KINDS}")
         _pos(f"fish.{f['id']}.pos", f.get("pos"), bounds)

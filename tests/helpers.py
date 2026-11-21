@@ -5,6 +5,7 @@ import math
 import os
 import shlex
 import subprocess
+import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,12 +24,16 @@ def frames(*fr):
 def headless_cmd():
     """Lệnh headless khai trong game.contract.json — test chạy qua đây nên dùng được với MỌI ngôn ngữ."""
     with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as f:
-        return shlex.split(json.load(f)["headless_cmd"])
+        command = shlex.split(json.load(f)["headless_cmd"])
+    if os.name == "nt" and command[:1] in (["python3"], ["python"]):
+        command[0] = sys.executable
+    return command
 
 
 def run_headless(*args, cwd=ROOT):
     """Chạy `<headless_cmd> <args>`; trả (mã thoát, stderr)."""
-    p = subprocess.run([*headless_cmd(), *args], cwd=cwd, capture_output=True, text=True)
+    p = subprocess.run([*headless_cmd(), *args], cwd=cwd, capture_output=True,
+                       text=True, encoding="utf-8", env={**os.environ, "PYTHONUTF8": "1"})
     return p.returncode, p.stderr
 
 

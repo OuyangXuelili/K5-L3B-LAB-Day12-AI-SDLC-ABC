@@ -1,6 +1,7 @@
 """Đọc game.contract.json và kiểm dải hợp lệ của tuning P1 (PRD mục 13.2, Test Contract)."""
 
 import json
+import math
 import os
 
 from .errors import BadInput
@@ -9,7 +10,7 @@ DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 
 
 def _num(v):
-    return isinstance(v, (int, float)) and not isinstance(v, bool)
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
 
 
 def _between(name, v, lo, hi):
@@ -23,6 +24,8 @@ def load_contract(path=DEFAULT_PATH) -> dict:
             c = json.load(f)
     except (OSError, ValueError) as e:
         raise BadInput(f"không đọc được {path}: {e}")
+    if not isinstance(c, dict):
+        raise BadInput("contract phải là object")
     validate_tuning(c.get("tuning"))
     return c
 
@@ -112,6 +115,8 @@ def _validate_gather(g):
 def validate_tuning(t):
     if not isinstance(t, dict):
         raise BadInput("thiếu khối tuning")
+    if isinstance(t.get("tick_hz"), bool) or t.get("tick_hz") != 60:
+        raise BadInput("Test Contract v1.0 yêu cầu tick_hz = 60")
     g, q, menu = t.get("gather"), t.get("quan"), t.get("menu")
     if not isinstance(g, dict) or not isinstance(q, dict) or not isinstance(menu, dict):
         raise BadInput("tuning phải có gather, quan, menu")
