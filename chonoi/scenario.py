@@ -9,7 +9,7 @@ import json
 import math
 
 from .errors import BadInput
-from .inventory import KINDS_P2, validate_items
+from .inventory import KINDS_P2, validate_individuals, validate_items
 
 GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "time_left_ticks", "monsters"}
 GATHER_PLAYER_KEYS = {"pos", "vel", "heading_deg", "hp", "oxygen_ticks", "zero_oxy_ticks",
@@ -107,7 +107,9 @@ def _validate_gather(b, tuning):
         raise BadInput("random_fish phải là boolean")
     if "hold" in b:
         h = b["hold"]
-        if not isinstance(h, list) or any(not isinstance(k, str) or k not in KINDS_P2 for k in h):
+        if "freshness" in tuning:
+            validate_individuals(h)
+        elif not isinstance(h, list) or any(not isinstance(k, str) or k not in KINDS_P2 for k in h):
             raise BadInput("hold phải là mảng id nguyên liệu hợp lệ")
         if len(h) > g["hold_capacity"]:
             raise BadInput("hold vượt sức chứa")
@@ -195,7 +197,8 @@ def _validate_quan(b, tuning):
         if arr in b:
             _check_ids(arr, b[arr])
     if "stock" in b:
-        validate_items(b["stock"])
+        validate_stock = validate_individuals if "freshness" in tuning else validate_items
+        validate_stock(b["stock"])
     if "random_customers" in b and not isinstance(b["random_customers"], bool):
         raise BadInput("random_customers phải là boolean")
     if "reputation" in b and (not _num(b["reputation"]) or not tuning["quan"]["reputation_min"] <= b["reputation"] <= tuning["quan"]["reputation_max"]):
@@ -225,6 +228,7 @@ def _validate_quan(b, tuning):
             for key in ("cook_ticks_left", "ready_ticks"):
                 if key in item:
                     _nonneg_int(key, item[key])
+    reserved_ids = set()
     for c in b.get("customers", []):
         if set(c) - {"id", "table_id", "state", "order_id", "order_tick", "dish_id", "order_status", "reserved", "patience_ticks_left", "eat_ticks_left", "price", "tip"}:
             raise BadInput("customer có trường lạ")
@@ -232,6 +236,13 @@ def _validate_quan(b, tuning):
             raise BadInput("customer.dish_id không hợp lệ")
         if "order_id" in c and (not isinstance(c["order_id"], str) or not c["order_id"]):
             raise BadInput("order_id phải là chuỗi khác rỗng")
+        if "freshness" in tuning and "reserved" in c:
+            reserved = c["reserved"]
+            if not isinstance(reserved, list) or any(not isinstance(ident, str) or not ident for ident in reserved):
+                raise BadInput("reserved v1.2 phải là mảng id cá thể")
+            if len(set(reserved)) != len(reserved) or reserved_ids.intersection(reserved):
+                raise BadInput("id nguyên liệu bị giữ nhiều lần")
+            reserved_ids.update(reserved)
         for key in ("order_tick", "patience_ticks_left", "eat_ticks_left", "price", "tip"):
             if key in c:
                 _nonneg_int(key, c[key])

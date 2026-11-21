@@ -17,6 +17,15 @@ def write_json(path, obj):
     return path
 
 
+def individuals(*kinds, fresh=100):
+    return [{"id": f"I{index}", "kind": kind, "fresh": fresh}
+            for index, kind in enumerate(kinds, 1)]
+
+
+def kinds_of(items):
+    return [item["kind"] for item in items]
+
+
 def frames(*fr):
     return {"frames": list(fr)}
 

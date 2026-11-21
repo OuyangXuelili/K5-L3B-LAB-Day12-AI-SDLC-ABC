@@ -112,4 +112,4 @@ def update_monsters(sim, events):
         lost = [sim.hold.pop() for _ in range(math.floor(len(sim.hold) * data["loss_ratio"]))]
         sim.invuln_ticks = data["invuln_ticks"]
         m.update(state="recoil", state_ticks_left=species["recoil_ticks"], recoil_dir=_direction(sim.pos, m["pos"]))
-        events.append(("monster_hit", {"monster_id": m["id"], "hp": sim.hp, "lost": lost, "pos": list(sim.pos)}))
+        events.append(("monster_hit", {"monster_id": m["id"], "hp": sim.hp, "lost": sim.export_hold(lost), "pos": list(sim.pos)}))

@@ -8,6 +8,7 @@ from chonoi.ids import IdAllocator
 from chonoi.inputs import InputState
 from chonoi.rng import Streams
 from chonoi.sim.quan import QuanSim
+from helpers import individuals, kinds_of
 
 
 def press(*buttons):
@@ -23,6 +24,8 @@ class QuanRules(unittest.TestCase):
         self.t = copy.deepcopy(load_contract()["tuning"])
 
     def sim(self, **kw):
+        if "stock" in kw:
+            kw["stock"] = individuals(*(kind for kind, count in kw["stock"].items() for _ in range(count)))
         return QuanSim(self.t, kw, Streams(7), IdAllocator())
 
     def test_reservation_prevents_double_booking_without_spending_stock(self):
@@ -30,8 +33,9 @@ class QuanRules(unittest.TestCase):
         for _ in range(1020):
             s.step(press())
         self.assertEqual(len(s.customers), 1)
-        self.assertEqual(s.stock, {"ca_loc": 1})
-        self.assertEqual(s.available_stock(), {"ca_loc": 0})
+        self.assertEqual(kinds_of(s.stock_snapshot()), ["ca_loc"])
+        self.assertEqual(s.available_stock(), {})
+        self.assertEqual(s.customers[0]["reserved"], ["I1"])
 
     def test_arrival_schedule_and_smallest_free_table(self):
         s = self.sim(stock={"ca_loc": 10})
@@ -45,7 +49,7 @@ class QuanRules(unittest.TestCase):
     def test_cook_ready_pick_serve_pay_with_tip(self):
         s = self.sim(stock={"ca_loc": 1}, customers=[customer()], random_customers=False, player={"pos": [2, 8]})
         self.assertEqual(s.step(press("interact"))[0][0], "cook_started")
-        self.assertEqual(s.stock["ca_loc"], 0)
+        self.assertEqual(s.stock_snapshot(), [])
         for _ in range(359):
             self.assertEqual(s.step(press()), [])
         self.assertEqual([e[0] for e in s.step(press("interact"))], ["dish_ready", "dish_picked"])
@@ -54,14 +58,14 @@ class QuanRules(unittest.TestCase):
         self.assertEqual(s.money, 0)
         for _ in range(600):
             s.step(press())
-        self.assertEqual((s.money, s.earned, s.shift_earned), (72, 72, 72))
+        self.assertEqual((s.money, s.earned, s.shift_earned), (70, 70, 70))
         self.assertEqual(s.reputation, 3.2)
         self.assertEqual(s.customers, [])
 
     def test_tip_boundary_checks_patience_after_tick_decrement(self):
         for patience, tip in ((1801, 12), (1800, 0)):
             c = customer(order_status="assigned", patience_ticks_left=patience)
-            s = self.sim(customers=[c], hand={"order_id": "C1", "dish_id": c["dish_id"]}, player={"pos": [9, 2]})
+            s = self.sim(customers=[c], hand={"order_id": "C1", "dish_id": c["dish_id"], "base_price": 60}, player={"pos": [9, 2]})
             s.step(press("interact"))
             self.assertEqual(s.customers[0]["tip"], tip)
 
@@ -77,7 +81,7 @@ class QuanRules(unittest.TestCase):
 
     def test_wrong_table_does_not_take_hand(self):
         c = customer(order_status="assigned")
-        s = self.sim(customers=[c], hand={"order_id": "C1", "dish_id": c["dish_id"]}, player={"pos": [13, 2]})
+        s = self.sim(customers=[c], hand={"order_id": "C1", "dish_id": c["dish_id"], "base_price": 60}, player={"pos": [13, 2]})
         self.assertEqual(s.step(press("interact")), [])
         self.assertIsNotNone(s.hand)
 
@@ -89,7 +93,7 @@ class QuanRules(unittest.TestCase):
 
     def test_timeout_discards_assigned_dish(self):
         c = customer(order_status="assigned", patience_ticks_left=1)
-        s = self.sim(customers=[c], hand={"order_id": "C1", "dish_id": c["dish_id"]}, random_customers=False)
+        s = self.sim(customers=[c], hand={"order_id": "C1", "dish_id": c["dish_id"], "base_price": 60}, random_customers=False)
         s.step(press())
         self.assertIsNone(s.hand)
 
@@ -107,7 +111,7 @@ class QuanRules(unittest.TestCase):
                 self.sim(**kw)
 
     def test_new_recipes_and_plan_filter(self):
-        s = QuanSim(self.t, {"stock": {"ca_keo": 2}}, Streams(1), IdAllocator(), allowed_dishes={"goi_bong_sung"})
+        s = QuanSim(self.t, {"stock": individuals("ca_keo", "ca_keo")}, Streams(1), IdAllocator(), allowed_dishes={"goi_bong_sung"})
         ev = []
         s._arrive(ev)
         self.assertEqual(ev[0][0], "no_dish")

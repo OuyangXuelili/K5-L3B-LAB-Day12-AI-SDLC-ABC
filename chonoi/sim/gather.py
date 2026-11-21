@@ -13,6 +13,7 @@ import math
 
 from ..ids import sort_by_id
 from ..inventory import hold_to_items
+from .freshness import age_items, export_items, load_individuals, tick_decay
 from .ramp import ramp_velocity
 from .aquatic import init_monsters, seed_fish, swim_and_spawn, update_monsters
 
@@ -42,7 +43,13 @@ class GatherSim:
         self.hp = p.get("hp", t["hp_max"])
         self.zero_oxy_ticks = p.get("zero_oxy_ticks", 0)
         self.catch_cd_ticks = p.get("catch_cd_ticks", 0)
-        self.hold = list(scenario.get("hold", []))  # thứ tự nhặt, cuối mảng là mới nhất
+        self.freshness = tuning.get("freshness")
+        self.hold = list(scenario.get("hold", []))  # cuối mảng là mới nhất
+        if self.freshness:
+            self.hold = load_individuals(self.hold)
+            self.decay = tick_decay(self.freshness, "gather", self.tick_hz)
+            for item in self.hold:
+                ids.reserve(item["id"])
         self.time_left_ticks = scenario.get("time_left_ticks", int(round(t["duration_s"] * self.tick_hz)))
         # nút và đàn cá: scenario THAY THẾ danh sách mặc định; random_fish=false tắt cá mặc định
         src_nodes = scenario["nodes"] if "nodes" in scenario else t["nodes"]
@@ -71,8 +78,15 @@ class GatherSim:
         self.reason = None
 
     # --- giao diện cho runner -------------------------------------------------
-    def inventory_items(self) -> dict:
+    def inventory_items(self) -> dict | list:
+        if self.freshness:
+            return self.export_hold(sort_by_id(self.hold))
         return hold_to_items(self.hold)
+
+    def export_hold(self, items):
+        if self.freshness:
+            return export_items(items, self.freshness["spoiled_below"])
+        return list(items)
 
     def snapshot(self) -> dict:
         return {
@@ -82,7 +96,7 @@ class GatherSim:
                        "catch_cd_ticks": self.catch_cd_ticks,
                        "invuln_ticks": self.invuln_ticks,
                        "at_surface": self._at_surface()},
-            "hold": self.hold, "hold_count": len(self.hold),
+            "hold": self.export_hold(self.hold), "hold_count": len(self.hold),
             "hold_capacity": self.t["hold_capacity"],
             "nodes": [{"id": n["id"], "pos": n["pos"], "kind": n["kind"],
                        "ready": n["regrow_ticks"] == 0, "regrow_ticks": n["regrow_ticks"]}
@@ -107,6 +121,8 @@ class GatherSim:
                 n["regrow_ticks"] -= 1
                 if n["regrow_ticks"] == 0:
                     events.append(("node_regrown", {"node_id": n["id"]}))
+        if self.freshness:
+            age_items(self.hold, self.decay, self.freshness["spoiled_below"], "hold", events)
         # 2. bơi + chặn mép
         was_surface = self._at_surface()
         self._move(inp)
@@ -115,14 +131,14 @@ class GatherSim:
             events.append(("surface" if at_surface else "dive", {"pos": list(self.pos)}))
         self._update_oxygen(at_surface, events)
         if self.hp == 0:
-            lost = list(reversed(self.hold))
+            lost = self.export_hold(reversed(self.hold))
             self.hold.clear()
             events.append(("faint", {"cause": "choke", "lost": lost, "hp": 0}))
             self._finish("fainted", events)
             return events
         update_monsters(self, events)
         if self.hp == 0:
-            lost = list(reversed(self.hold))
+            lost = self.export_hold(reversed(self.hold))
             self.hold.clear()
             events.append(("faint", {"cause": "monster", "lost": lost, "hp": 0}))
             self._finish("fainted", events)
@@ -176,7 +192,11 @@ class GatherSim:
                                          "required": quantity,
                                          "free": self.t["hold_capacity"] - len(self.hold)}))
             return False
-        self.hold.extend([kind] * quantity)
+        if self.freshness:
+            self.hold.extend({"id": self.ids.new("I"), "kind": kind, "fresh": self.freshness["initial"]}
+                             for _ in range(quantity))
+        else:
+            self.hold.extend([kind] * quantity)
         return True
 
     def _gather_node(self, events):

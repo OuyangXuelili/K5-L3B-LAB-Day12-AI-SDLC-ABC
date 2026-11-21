@@ -10,7 +10,7 @@ from chonoi.ids import IdAllocator, id_key
 from chonoi.inputs import InputState, LiveInputs
 from chonoi.rng import Streams
 from chonoi.sim.gather import GatherSim
-from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import Workdir, events, frames, individuals, kinds_of, read_jsonl, run_headless, snapshots, write_json
 
 
 def input_state(*buttons, move=(0, 0)):
@@ -28,6 +28,8 @@ class GatherRules(unittest.TestCase):
     def sim(self, **scenario):
         # Ticket-02 4.3: giữ fixture cá P1 đứng yên để tiếp tục kiểm luật bắt cũ.
         scenario.setdefault("random_fish", False)
+        if "hold" in scenario:
+            scenario["hold"] = individuals(*scenario["hold"])
         return GatherSim(self.tuning, scenario, Streams(7), IdAllocator())
 
     def test_underwater_oxygen_spends_one_tick(self):
@@ -80,8 +82,8 @@ class GatherRules(unittest.TestCase):
                        hold=["ca_loc"], fish=[{"id": "F1", "kind": "ca_loc", "pos": [20, 5]}])
         result = sim.step(input_state("interact", "catch"))
         self.assertEqual(names(result), ["choke", "faint", "gather_end"])
-        self.assertEqual(result[1][1], {"cause": "choke", "lost": ["ca_loc"], "hp": 0})
-        self.assertEqual(result[-1][1], {"reason": "fainted", "inventory": {"items": {}}})
+        self.assertEqual(result[1][1], {"cause": "choke", "lost": individuals("ca_loc", fresh=100 - 1 / 120), "hp": 0})
+        self.assertEqual(result[-1][1], {"reason": "fainted", "inventory": {"items": []}})
         self.assertTrue(sim.done)
         self.assertEqual(sim.hold, [])
         self.assertEqual(len(sim.fish), 1)
@@ -114,7 +116,7 @@ class GatherRules(unittest.TestCase):
         self.assertEqual(names(result), ["gather"])
         self.assertEqual(result[0][1]["node_id"], "N2")
         self.assertEqual(result[0][1], {"node_id": "N2", "kind": "bong_dien_dien", "amount": 1})
-        self.assertEqual(sim.hold, ["bong_dien_dien"])
+        self.assertEqual(sim.hold, individuals("bong_dien_dien"))
         node = next(n for n in sim.nodes if n["id"] == "N2")
         self.assertEqual(node["regrow_ticks"], int(self.tuning["gather"]["regrow_s"] * self.tuning["tick_hz"]))
 
@@ -139,7 +141,7 @@ class GatherRules(unittest.TestCase):
         self.assertEqual(sim.step(input_state("interact")), [("hold_full", {
             "action": "gather", "node_id": "N1", "required": 1, "free": 0,
         })])
-        self.assertEqual(sim.hold, full)
+        self.assertEqual(kinds_of(sim.hold), full)
         self.assertEqual(sim.nodes[0]["regrow_ticks"], 0)
 
     def test_catch_removes_one_nearest_school_and_sets_cooldown(self):
@@ -151,7 +153,7 @@ class GatherRules(unittest.TestCase):
         self.assertEqual(names(result), ["fish_caught"])
         self.assertEqual(result[0][1]["fish_id"], "F2")
         self.assertEqual(result[0][1], {"fish_id": "F2", "kind": "ca_linh", "yield": 3})
-        self.assertEqual(sim.hold, ["ca_linh"] * self.tuning["gather"]["fish_yield"]["ca_linh"])
+        self.assertEqual(kinds_of(sim.hold), ["ca_linh"] * self.tuning["gather"]["fish_yield"]["ca_linh"])
         self.assertEqual([f["id"] for f in sim.fish], ["F10"])
         self.assertEqual(sim.catch_cd_ticks, int(self.tuning["gather"]["catch_cooldown_s"] * self.tuning["tick_hz"]))
 
@@ -172,7 +174,7 @@ class GatherRules(unittest.TestCase):
         self.assertEqual(sim.step(input_state("catch")), [("hold_full", {
             "action": "catch", "fish_id": "F1", "required": 3, "free": 1,
         })])
-        self.assertEqual(sim.hold, initial)
+        self.assertEqual(kinds_of(sim.hold), initial)
         self.assertEqual(len(sim.fish), 1)
         self.assertEqual(sim.catch_cd_ticks, 0)
 
@@ -182,8 +184,8 @@ class GatherRules(unittest.TestCase):
         sim = self.sim(player={"pos": [20, 5]}, hold=initial,
                        fish=[{"id": "F1", "kind": "ca_loc", "pos": [20, 5]}])
         self.assertEqual(names(sim.step(input_state("catch"))), ["fish_caught"])
-        self.assertEqual(sim.hold, initial + ["ca_loc"])
-        self.assertEqual(sim.hold.pop(), "ca_loc")
+        self.assertEqual(kinds_of(sim.hold), initial + ["ca_loc"])
+        self.assertEqual(sim.hold.pop()["kind"], "ca_loc")
 
     def test_held_interact_does_not_repeat_gather(self):
         self.tuning["gather"]["regrow_s"] = 1 / self.tuning["tick_hz"]
@@ -216,7 +218,7 @@ class GatherRules(unittest.TestCase):
         hold = ["ca_loc", "bong_sung", "ca_linh"]
         sim = self.sim(player={"pos": [20, 5], "oxygen_ticks": 0, "hp": 1, "zero_oxy_ticks": 59}, hold=hold)
         result = sim.step(input_state())
-        self.assertEqual(result[1], ("faint", {"cause": "choke", "lost": hold[::-1], "hp": 0}))
+        self.assertEqual(result[1], ("faint", {"cause": "choke", "lost": individuals(*hold, fresh=100 - 1 / 120)[::-1], "hp": 0}))
 
     def test_surface_on_choke_deadline_prevents_damage(self):
         boundary = self.tuning["gather"]["surface_depth"]
@@ -242,7 +244,7 @@ class GatherRules(unittest.TestCase):
                        fish=[{"id": "F1", "kind": "ca_loc", "pos": [20, 5]}])
         result = sim.step(input_state("catch"))
         self.assertEqual(names(result), ["fish_caught", "gather_end"])
-        self.assertEqual(result[-1][1], {"reason": "time", "inventory": {"items": {"ca_loc": 1}}})
+        self.assertEqual(result[-1][1], {"reason": "time", "inventory": {"items": individuals("ca_loc")}})
 
     def test_inclusive_harvest_and_catch_radius(self):
         for action in ("gather", "catch"):
@@ -284,7 +286,7 @@ class GatherHeadless(unittest.TestCase):
         with Workdir() as w:
             scenario = write_json(w.path("scenario.json"), {"gather": {
                 "player": {"pos": [20, 5], "oxygen_ticks": 1, "hp": 1},
-                "hold": ["ca_loc", "bong_sung"], "nodes": [], "fish": [],
+                "hold": individuals("ca_loc", "bong_sung"), "nodes": [], "fish": [],
             }})
             code, error = run_headless("--mode", "gather", "--seed", "1", "--ticks", "100",
                                        "--scenario", scenario, "--out", w.path("out.jsonl"))
@@ -295,7 +297,7 @@ class GatherHeadless(unittest.TestCase):
             self.assertEqual(empty[0]["data"], {"oxygen_ticks": 0})
             self.assertEqual(events(rows, "choke")[0]["tick"], 60)
             self.assertEqual(events(rows, "faint")[0]["data"], {
-                "cause": "choke", "lost": ["bong_sung", "ca_loc"], "hp": 0,
+                "cause": "choke", "lost": individuals("ca_loc", "bong_sung", fresh=99.5)[::-1], "hp": 0,
             })
             self.assertEqual(rows[-1]["reason"], "fainted")
             self.assertEqual(rows[-1]["ticks"], 60)
@@ -321,17 +323,18 @@ class GatherHeadless(unittest.TestCase):
             self.assertEqual(len(events(rows, "gather")), 1)
             self.assertEqual(len(events(rows, "gather_end")), 1)
             with open(inventory, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {"bong_sung": 1}})
+                saved = json.load(f)["items"]
+            self.assertEqual(saved, individuals("bong_sung", fresh=100 - 10 / 120))
             code, error = run_headless("--mode", "quan", "--seed", "7", "--ticks", "0",
                                        "--inventory", inventory, "--out", w.path("quan.jsonl"))
             self.assertEqual(code, 0, error)
-            self.assertEqual(snapshots(read_jsonl(w.path("quan.jsonl")))[0]["stock"], {"bong_sung": 1})
+            self.assertEqual(snapshots(read_jsonl(w.path("quan.jsonl")))[0]["stock"], saved)
 
     def test_faint_writes_empty_inventory_once(self):
         with Workdir() as w:
             scenario = write_json(w.path("scenario.json"), {"gather": {
                 "player": {"pos": [20, 5], "oxygen_ticks": 0, "zero_oxy_ticks": 59, "hp": 1},
-                "hold": ["ca_loc"],
+                "hold": individuals("ca_loc"),
             }})
             inventory = w.path("inventory.json")
             code, error = run_headless("--mode", "gather", "--seed", "1", "--ticks", "100",
@@ -342,7 +345,7 @@ class GatherHeadless(unittest.TestCase):
             self.assertEqual(len(events(rows, "faint")), 1)
             self.assertEqual(len(events(rows, "gather_end")), 1)
             with open(inventory, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {}})
+                self.assertEqual(json.load(f), {"items": []})
 
     def test_gameplay_replay_is_byte_identical_with_unsorted_entities(self):
         with Workdir() as w:

@@ -2,6 +2,7 @@
 import argparse
 from collections import Counter
 from datetime import datetime, timezone
+from fractions import Fraction
 import hashlib
 import json
 from pathlib import Path
@@ -17,11 +18,21 @@ def write(path, value):
 
 
 def replay_probe():
+    tuning = json.loads((ROOT / "game.contract.json").read_text(encoding="utf-8"))["tuning"]
+    kinds = ["ca_loc", "bong_sung", "bong_sung"]
+    hold = kinds
+    expected_stock = {"ca_loc": 1, "bong_sung": 2}
+    if "freshness" in tuning:
+        fresh = tuning["freshness"]
+        decay = Fraction(str(fresh["gather_decay_per_s"])) / tuning["tick_hz"]
+        hold = [{"id": f"I{i}", "kind": kind, "fresh": fresh["initial"]}
+                for i, kind in enumerate(kinds, 1)]
+        expected_stock = [dict(item, fresh=float(item["fresh"] - decay)) for item in hold]
     with tempfile.TemporaryDirectory(prefix="phase2-") as temp:
         work = Path(temp)
         scenario, inputs = work / "scenario.json", work / "inputs.json"
         write(scenario, {"day": {"money": 200, "earned": 200},
-            "gather": {"hold": ["ca_loc", "bong_sung", "bong_sung"], "time_left_ticks": 1},
+            "gather": {"hold": hold, "time_left_ticks": 1},
             "quan": {"time_left_ticks": 1, "random_customers": False}})
         write(inputs, {"frames": [{"tick": 2, "buy": "oxygen", "shop_done": True},
             {"tick": 3, "shop_done": False}, {"tick": 5, "shop_done": True}]})
@@ -40,7 +51,7 @@ def replay_probe():
         events = [r for r in rows if r["type"] == "event"]
         quan = next(r for r in snaps if r["phase"] == "quan")
         next_day = next(r for r in snaps if r["day"] == 2)
-        if quan["stock"] != {"ca_loc": 1, "bong_sung": 2} or next_day["player"]["oxygen_max_ticks"] != 2700:
+        if quan["stock"] != expected_stock or next_day["player"]["oxygen_max_ticks"] != 2700:
             raise RuntimeError("Sai kho chuyển pha hoặc nâng cấp ngày kế")
         end = rows[-1]
         if end["days_completed"] != 2 or end["money"] != 0 or end["earned"] != 200:
@@ -80,7 +91,8 @@ def main():
         except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as exc:
             probes[name] = {"status": "failed", "error": str(exc)}
     passed = all(c["exit_code"] == 0 for c in checks) and all(p["status"] == "passed" for p in probes.values())
-    report = {"generated_at_utc": datetime.now(timezone.utc).isoformat(), "contract_version": "1.1",
+    version = json.loads((ROOT / "game.contract.json").read_text(encoding="utf-8"))["contract_version"]
+    report = {"generated_at_utc": datetime.now(timezone.utc).isoformat(), "contract_version": version,
         "status": "passed" if passed else "failed", "checks": checks, "probes": probes,
         "limitations": ["No human review or on-time lab delivery is asserted.",
             "Restaurant v1.0 payload/fixture details still need PO comparison; see ADR 0002.",

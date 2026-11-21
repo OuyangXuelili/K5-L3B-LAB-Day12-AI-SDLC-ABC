@@ -26,7 +26,12 @@ def load_contract(path=DEFAULT_PATH) -> dict:
         raise BadInput(f"không đọc được {path}: {e}")
     if not isinstance(c, dict):
         raise BadInput("contract phải là object")
-    validate_tuning(c.get("tuning"))
+    if c.get("contract_version") not in ("1.0", "1.1", "1.2"):
+        raise BadInput("contract_version chưa hỗ trợ")
+    tuning = c.get("tuning")
+    validate_tuning(tuning)
+    if (c.get("contract_version") == "1.2") != ("freshness" in tuning):
+        raise BadInput("freshness chỉ được khai và bắt buộc với contract v1.2")
     return c
 
 
@@ -154,6 +159,18 @@ def validate_tuning(t):
             raise BadInput(f"menu.{dish_id}: recipe phải khác rỗng, lượng dương")
     if "shop" in t:
         _validate_v11(t)
+    if "freshness" in t:
+        _validate_freshness(t["freshness"])
+
+
+def _validate_freshness(config):
+    expected = {"initial": 100, "gather_decay_per_s": 0.5,
+                "quan_decay_per_s": 0.25, "spoiled_below": 30}
+    if not isinstance(config, dict) or set(config) != set(expected):
+        raise BadInput("tuning.freshness sai schema v1.2")
+    for key, value in expected.items():
+        if not _num(config[key]) or config[key] != value:
+            raise BadInput(f"tuning.freshness.{key} phải là {value} theo v1.2")
 
 
 def _validate_v11(t):

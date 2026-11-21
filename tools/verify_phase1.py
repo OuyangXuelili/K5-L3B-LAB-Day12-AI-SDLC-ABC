@@ -1,6 +1,7 @@
 """Chạy test và sinh bằng chứng thật cho phần Quang; không commit, tag hay gọi API."""
 import argparse
 from datetime import datetime, timezone
+from fractions import Fraction
 import hashlib
 import json
 import os
@@ -55,7 +56,21 @@ def integration_probe():
         if runs[0] != runs[1]:
             raise RuntimeError("Same seed/input produced different JSONL or inventory bytes")
         stock = json.loads(runs[0][1])
-        if stock != {"items": {"bong_sung": 1}}:
+        gathered_rows = [json.loads(line) for line in runs[0][0].decode("utf-8").splitlines()]
+        events = [row for row in gathered_rows if row["type"] == "event"]
+        if [event["name"] for event in events] != ["gather", "gather_end"]:
+            raise RuntimeError("Unexpected gather event order")
+        expected = {"items": {"bong_sung": 1}}
+        tuning = json.loads((ROOT / "game.contract.json").read_text(encoding="utf-8"))["tuning"]
+        if "freshness" in tuning:
+            fresh = tuning["freshness"]
+            decay = Fraction(str(fresh["gather_decay_per_s"])) / tuning["tick_hz"]
+            elapsed = events[1]["tick"] - events[0]["tick"]
+            expected = {"items": [{"id": "I1", "kind": "bong_sung",
+                                   "fresh": float(fresh["initial"] - elapsed * decay)}]}
+            if events[1]["data"]["inventory"] != stock:
+                raise RuntimeError("Gather event inventory differs from file")
+        if stock != expected:
             raise RuntimeError("Unexpected inventory after gathering")
         quan = work / "quan.jsonl"
         result = run_command(["-m", "chonoi.headless", "--mode", "quan", "--seed", "7", "--ticks", "0",
@@ -65,11 +80,7 @@ def integration_probe():
         rows = [json.loads(line) for line in quan.read_text(encoding="utf-8").splitlines()]
         if rows[0]["stock"] != stock["items"]:
             raise RuntimeError("Quan stock differs from exported gather inventory")
-        gathered_rows = [json.loads(line) for line in runs[0][0].decode("utf-8").splitlines()]
-        events = [row["name"] for row in gathered_rows if row["type"] == "event"]
-        if events != ["gather", "gather_end"]:
-            raise RuntimeError("Unexpected gather event order")
-        return {"status": "passed", "seed": 7, "events": events, "inventory": stock,
+        return {"status": "passed", "seed": 7, "events": [event["name"] for event in events], "inventory": stock,
                 "quan_stock": rows[0]["stock"], "replay_bytes_identical": True,
                 "jsonl_sha256": hashlib.sha256(runs[0][0]).hexdigest(),
                 "inventory_sha256": hashlib.sha256(runs[0][1]).hexdigest()}

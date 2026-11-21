@@ -24,7 +24,7 @@ class DaySim:
         self.day, self.days, self.days_completed = 1, days, 0
         self.phase_tick = 0
         self.done, self.reason = False, None
-        self.shop_stock = {}
+        self.shop_stock = [] if "freshness" in self.tuning else {}
         self.results, self.sold = [], {}
         self._start_gather()
 
@@ -41,6 +41,8 @@ class DaySim:
         self.active_upgrades = dict(self.upgrades)
         block = copy.deepcopy(self.scenario.get("gather", {}))
         _validate_block(block, "gather", effective)
+        if "freshness" in effective and self.day > 1:
+            block["hold"] = [dict(item, id=self.ids.new("I")) for item in block.get("hold", [])]
         block["_day"] = self.day
         self.child = GatherSim(effective, block, self.rng, self.ids)
         self.child.money, self.child.earned, self.child.reputation = self.money, self.earned, self.reputation
@@ -56,7 +58,7 @@ class DaySim:
         return [self._event("day_start"), self._event("day_plan", {k: self.day_plan[k] for k in ("dishes", "ingredients")}), self._event("phase_start")]
 
     def snapshot(self):
-        state = self.child.snapshot() if self.phase != "shop" else {"stock": {k: v for k, v in sorted(self.shop_stock.items()) if v > 0}}
+        state = self.child.snapshot() if self.phase != "shop" else {"stock": copy.deepcopy(self.shop_stock)}
         state.update(day=self.day, day_plan=copy.deepcopy(self.day_plan), upgrades=dict(self.upgrades),
                      active_upgrades=dict(self.active_upgrades), days_completed=self.days_completed,
                      day_results=copy.deepcopy(self.results), sold=dict(sorted(self.sold.items())))
@@ -73,14 +75,14 @@ class DaySim:
         if not self.child.done:
             return ev
         if self.phase == "gather":
-            inventory = self.child.inventory_items()
+            inventory = self.child.hold if self.child.freshness else self.child.inventory_items()
             self.child = QuanSim(self.tuning, self.scenario.get("quan", {}), self.rng, self.ids,
                                  inventory=inventory, allowed_dishes=self.day_plan["dishes"])
             self.child.money, self.child.earned, self.child.reputation = self.money, self.earned, self.reputation
             self.phase, self.phase_tick = "quan", 0
         else:
             q = self.child
-            self.shop_stock = dict(q.stock)
+            self.shop_stock = q.stock_snapshot()
             self.results.append({"day": self.day, "served": q.served_count, "left": q.left_count,
                 "shift_earned": q.shift_earned, "tips": q.tips, "reputation_delta": round(self.reputation - self.day_start_reputation, 10)})
             for dish, n in q.sold.items():
@@ -112,7 +114,7 @@ class DaySim:
             reason = "done" if inp.pressed("shop_done") else "time"
             events.append(self._event("shop_end", {"reason": reason}))
             self.days_completed += 1
-            self.shop_stock = {}
+            self.shop_stock = [] if "freshness" in self.tuning else {}
             if self.days_completed == self.days:
                 self.done, self.reason = True, "days_complete"
             else:

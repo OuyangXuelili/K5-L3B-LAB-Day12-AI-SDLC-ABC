@@ -8,7 +8,7 @@ from chonoi.contract import load_contract
 from chonoi.inputs import BUTTONS_V11, InputPlayer, InputState, LiveInputs
 from chonoi.runner import Session
 from chonoi.live import LiveGame
-from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import Workdir, events, frames, individuals, kinds_of, read_jsonl, run_headless, snapshots, write_json
 
 
 def inp(*buttons, buy=None):
@@ -29,12 +29,12 @@ class Phase2(unittest.TestCase):
             "quan": quan or {"time_left_ticks": 1, "random_customers": False}}, 7, days=days)
 
     def test_day_changes_snapshot_phase_but_end_event_keeps_old_phase(self):
-        s = self.day(gather={"hold": ["ca_keo", "keo_neo"], "time_left_ticks": 1})
+        s = self.day(gather={"hold": individuals("ca_keo", "keo_neo"), "time_left_ticks": 1})
         rows = s.step(inp())
         self.assertEqual([(r["phase"], r["name"]) for r in rows], [("gather", "gather_end"), ("quan", "phase_start")])
         snap = s.snapshot()
         self.assertEqual((snap["mode"], snap["phase"], snap["phase_tick"]), ("day", "quan", 0))
-        self.assertEqual(snap["stock"], {"ca_keo": 1, "keo_neo": 1})
+        self.assertEqual(snap["stock"], individuals("ca_keo", "keo_neo", fresh=100 - 1 / 120))
         s.step(inp())
         self.assertEqual(s.snapshot()["phase"], "shop")
         self.assertEqual(s.end_row()["days_completed"], 0)
@@ -76,12 +76,12 @@ class Phase2(unittest.TestCase):
         self.assertEqual(s.end_row()["days_completed"], 1)
 
     def test_stock_is_discarded_after_shop_and_basket_is_new(self):
-        s = self.day(gather={"hold": ["ca_loc"], "time_left_ticks": 1}, days=2)
+        s = self.day(gather={"hold": individuals("ca_loc"), "time_left_ticks": 1}, days=2)
         s.step(inp()); s.step(inp())
-        self.assertEqual(s.snapshot()["stock"], {"ca_loc": 1})
+        self.assertEqual(s.snapshot()["stock"], individuals("ca_loc", fresh=100 - 1 / 120 - 1 / 240))
         s.step(inp("shop_done"))
-        self.assertEqual(s.sim.shop_stock, {})
-        self.assertEqual(s.snapshot()["hold"], ["ca_loc"], "scenario template khởi tạo lại, không cộng kho dư")
+        self.assertEqual(s.sim.shop_stock, [])
+        self.assertEqual(s.snapshot()["hold"], [{"id": "I2", "kind": "ca_loc", "fresh": 100}], "scenario template khởi tạo lại, không cộng kho dư")
 
     def test_pause_freezes_all_timers_and_consumes_action_edges(self):
         for mode, block in (("gather", {"player": {"pos": [20, 5], "oxygen_ticks": 2}, "random_fish": False}), ("quan", {"random_customers": False})):
@@ -168,15 +168,16 @@ class Phase2(unittest.TestCase):
     def test_catch_uses_positions_before_fish_swim(self):
         s = Session("gather", self.t, {"player": {"pos": [40, 24]}, "monsters": [], "fish": [{"id": "F1", "kind": "ca_keo", "pos": [42, 24]}]}, 7)
         self.assertEqual(s.step(inp("catch"))[0]["name"], "fish_caught")
-        self.assertEqual(s.sim.hold, ["ca_keo"] * 2)
+        self.assertEqual(kinds_of(s.sim.hold), ["ca_keo"] * 2)
 
     def test_monster_hit_lifo_recoil_invulnerability_and_faint_inventory(self):
-        s = Session("gather", self.t, {"player": {"pos": [40, 15], "hp": 1}, "hold": ["ca_loc", "bong_sung", "keo_neo"], "monsters": [monster()], "random_fish": False}, 7)
+        s = Session("gather", self.t, {"player": {"pos": [40, 15], "hp": 1}, "hold": individuals("ca_loc", "bong_sung", "keo_neo"), "monsters": [monster()], "random_fish": False}, 7)
         rows = s.step(inp("catch"))
         self.assertEqual([r["name"] for r in rows], ["monster_hit", "faint", "gather_end"])
-        self.assertEqual(rows[0]["data"]["lost"], ["keo_neo"])
-        self.assertEqual(rows[1]["data"], {"cause": "monster", "lost": ["bong_sung", "ca_loc"], "hp": 0})
-        self.assertEqual(s.sim.inventory_items(), {})
+        items = individuals("ca_loc", "bong_sung", "keo_neo", fresh=100 - 1 / 120)
+        self.assertEqual(rows[0]["data"]["lost"], items[-1:])
+        self.assertEqual(rows[1]["data"], {"cause": "monster", "lost": items[-2::-1], "hp": 0})
+        self.assertEqual(s.sim.inventory_items(), [])
         self.assertEqual(s.sim.monsters[0]["state_ticks_left"], 60)
 
     def test_invulnerability_does_not_trigger_recoil_and_choke_bypasses_it(self):
@@ -206,7 +207,7 @@ class Phase2(unittest.TestCase):
         self.assertEqual([m["id"] for m in s.sim.child.monsters], ["M1", "M2"])
 
     def test_invalid_v11_fixtures_exit_two_without_touching_output(self):
-        cases = [("day", {"day": {"money": 1}}), ("day", {"quan": {"stock": {}}}),
+        cases = [("day", {"day": {"money": 1}}), ("day", {"quan": {"stock": []}}),
             ("day", {"quan": {"reputation": 3}}), ("day", {"day": {"upgrades": {"hp": 3}}}),
             ("day", {"day": {"day_plan": [{"day": 1, "dishes": {"lau_mam": 1}, "ingredients": {}}]}}),
             ("gather", {"gather": {"monsters": [monster(state="recoil")]}}),
