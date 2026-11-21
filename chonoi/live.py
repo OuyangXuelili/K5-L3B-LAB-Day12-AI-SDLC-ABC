@@ -173,6 +173,13 @@ class _Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     game: LiveGame = None  # gán trên lớp con trong make_server
 
+    def handle(self):
+        try:
+            super().handle()
+        except (ConnectionResetError, BrokenPipeError):
+            # Closing/reloading the browser is a normal client disconnect.
+            pass
+
     def log_message(self, fmt, *args):  # yên lặng
         pass
 
