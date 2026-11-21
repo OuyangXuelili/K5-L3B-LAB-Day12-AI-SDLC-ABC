@@ -2,6 +2,8 @@
 
 | # | Ngày giờ | Câu hỏi | Trả lời / giả định | Ai quyết |
 |---|---|---|---|---|
+| P4-01 | 21/11/2026 | Bản cuối đã được kiểm tới đâu? | Contract 1.3, 115 test, soak 10 ngày/replay, benchmark render, cảnh báo và ZIP đã kiểm. Bản PRD-0 và Ticket-02 đã được người dùng cung cấp trong hội thoại; các ghi chú chưa đọc ở P2 là trạng thái lịch sử của phiên trước. Xem verification/phase-4.md. | Theo tài liệu và bằng chứng thực thi |
+| P4-02 | 21/11/2026 | Có thể ghi đã nộp đầy đủ không? | Chưa có bằng chứng review nhóm, merge main, tag/Release hoặc demo. Hồ sơ submission.md đánh dấu riêng từng việc còn lại. Không dựng biên bản hay phản tư thay trải nghiệm chưa được xác nhận. | Trạng thái bàn giao |
 | P2-01 | 21/11/2026 | Có được đổi contract/kho không? | Người dùng giao hoàn thiện Phase 2 theo Ticket-02; 4.1 yêu cầu v1.1, thêm ca_keo/keo_neo, ngày/Shop/pause. Giữ schema kho, mở rộng id. ADR 0002 ghi tác động để nhóm nhận bàn giao. | Theo ticket và yêu cầu hiện tại; chưa ghi đã họp nhóm |
 | P2-02 | 21/11/2026 | Payload/fixture quán PRD-0 có đọc được trong phiên không? | Chưa. Ticket-02 không lặp lại toàn bộ; lab board không đọc được qua web. Cửa sổ Edge hiện là Zalo nên auto-review chặn đọc vì riêng tư. Định dạng đang dùng ở ADR 0002; cần PO đối chiếu, không coi là đáp án giảng viên. | Câu hỏi còn mở cho PO |
 | P2-03 | 21/11/2026 | Vì sao cập nhật test P1? | v1.1 tăng đàn 6→8, hỗ trợ day, attack đúng kiểu được bỏ qua khi tắt mở rộng, nhận invuln_ticks. Fixture cũ giữ đứng yên bằng random_fish:false; vẫn giữ assertion cũ cho luật bắt. Có test v1.1 riêng. | Theo Ticket-02 4.1–4.3 |

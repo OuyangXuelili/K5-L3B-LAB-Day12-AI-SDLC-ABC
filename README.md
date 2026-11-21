@@ -86,6 +86,9 @@ một ngày tới Shop, test, đóng góp từng người và bằng chứng the
 
 ## Bàn giao và quy tắc lab
 
+[Hồ sơ nộp bài và checklist cuối](docs/submission.md) gom kết quả, tài liệu và
+những bước còn cần nhóm xác nhận trước khi công bố.
+
 - Một fork chung public, nhóm 4–6 người, collaborator quyền Write. Thành viên và
   thỏa thuận ở [TEAM](TEAM.md), `team_size` phải khớp. Mỗi người ít nhất 3 commit
   có nội dung; làm cặp ghi `Co-authored-by:`. Không sao chép repo nhóm khác.

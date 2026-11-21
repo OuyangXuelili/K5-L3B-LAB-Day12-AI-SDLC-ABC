@@ -2,6 +2,9 @@
 
 ## Phase 4 — phần Cường, 21/11/2026
 
+- Lượt hoàn thiện hồ sơ: bổ sung submission, kế hoạch P4, cập nhật kết quả ma trận
+  và số liệu retro từ Git/bằng chứng; không bổ sung lời nhận xét giả của thành viên.
+
 - Codex đọc Ticket-04 và mã main, hỗ trợ triển khai trên nhánh cuonglk theo yêu cầu.
 - Phạm vi: contract 1.3, soak, benchmark, cảnh báo/tương phản, đóng gói, test và tài liệu.
 - Bằng chứng được sinh bằng lệnh tại docs/proof/phase-4, không nhập số đo bằng tay.

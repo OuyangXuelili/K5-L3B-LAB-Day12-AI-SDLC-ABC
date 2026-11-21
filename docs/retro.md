@@ -18,6 +18,8 @@
   Phải kiểm bằng trình duyệt và tăng chỗ cho cảnh báo.
 - Số liệu đóng góp: xem `git shortlog -sne HEAD` và lịch sử nhánh; không tính các
   commit của starter thành đóng góp nhóm. Token/chi phí không có số đo.
+  Tại mốc bàn giao `2d596ae`, khoảng `f0a1906..2d596ae` có Quang 3, Phan Anh 3,
+  Mạnh 4 và Cường 5 commit. Bản cuối có 115 test; soak 10/10 ngày không crash.
 - Lỗi AI: chuỗi UTF-8 qua terminal bị thành dấu hỏi; đọc diff và ảnh UI giúp phát hiện.
 - Việc tiếp theo: Integrator nhận review nhánh cuonglk, chạy lại kiểm chứng trên main;
   QA rà cùng gói ở macOS/Linux rồi mới công bố tag và release.
