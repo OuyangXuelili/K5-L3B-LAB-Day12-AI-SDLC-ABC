@@ -3,6 +3,51 @@
 > **Làm theo nhóm 4–6 người** · Dùng AI để xây game 2D qua **4 phase** trong **3 giờ**: Út Sen lặn bắt cá, hái rau trên mặt nước rồi tối mở quán phục vụ khách.
 > **Yêu cầu từng phase mở đúng mốc giờ tại lab board:** **[Chợ Nổi Lab](https://claude.ai/artifact/E35v787wSx2wDgPTNhMVDg)** (cần đăng nhập claude.ai; có trợ giảng AI cho từng phase).
 
+## Nhóm ABC — phần Quang, Phase 1
+
+Phân công và GitHub handle ở [TEAM.md](TEAM.md). Đợt này hoàn thiện luật
+lặn/thu thập trong `sim/gather`: oxy, ngạt, ngất, hái/mọc lại, bắt cá/hồi chiêu,
+sức chứa và thứ tự giỏ. Kho xuất từ lượt hái thật đã có probe nạp vào quán.
+Các quyết định đang áp dụng ở [ADR 0001](docs/adr/0001-phase1-gather.md);
+kết quả đối chiếu PRD-0 và phần chờ tích hợp ở [docs/clarify.md](docs/clarify.md).
+
+Chỉ cần Python 3, không cài dependency hay API key:
+
+```powershell
+python tools/verify_phase1.py
+python tools/check_inventory.py docs/contracts/inventory.sample.json
+python -m chonoi.live --mode gather
+```
+
+`verify_phase1.py` chạy test, kiểm TEAM/kho và tạo
+`docs/proof/phase-1/verification.json` từ thực thi. Cùng seed/input phải sinh
+JSONL và kho giống từng byte. Bộ test hộp đen giữ nguyên; helper trên Windows
+dùng Python đang chạy để tránh alias `python3` của Windows Store.
+
+Phần Quang đã đối chiếu PRD-0 / Test Contract v1.0, mục D–G tại
+[tab Phase 1](https://claude.ai/artifact/E35v787wSx2wDgPTNhMVDg#phase-1), sau khi
+đăng nhập Claude. Luật khách/bếp/phục vụ do Phan Anh phụ trách, UI do Mạnh và
+QA toàn phase do Cường; toàn Phase 1 còn cần tích hợp các phần này. Thỏa thuận nhóm,
+review con người và tag chỉ ghi hoàn tất sau khi thực sự diễn ra.
+Các commit phần Quang được dẫn trong [hồ sơ cá nhân](docs/members/OuyangXuelili.md).
+
+Từ clone sạch trên macOS/Linux, chạy trong 3 lệnh:
+
+```bash
+git clone https://github.com/OuyangXuelili/K5-L3B-LAB-Day12-AI-SDLC-ABC.git && cd K5-L3B-LAB-Day12-AI-SDLC-ABC
+python3 tools/verify_phase1.py
+python3 -m chonoi.live --mode gather
+```
+
+WASD/mũi tên để bơi/đi, E để hái/cập bến/tương tác, Space để bắt cá, R chơi lại.
+Điểm theo preset là `earned + 100 × floor(reputation)`; tiền tính bằng nghìn đồng.
+Chế độ quán mở bằng `python3 -m chonoi.live --mode quan --inventory kho.json` khi
+đã có file kho từ lượt gather kết thúc; luật quán hiện vẫn là phần cần tích hợp.
+
+Hợp đồng kho/UI/event tại [docs/contracts/README.md](docs/contracts/README.md).
+Test `test_template_is_rejected` dùng fixture mẫu riêng để không coi `TEAM.md`
+đã điền là dữ liệu lỗi; không thay điều kiện kiểm tính hợp lệ của thành viên.
+
 ## Bắt buộc (chỉ có thế)
 
 Cách làm việc kỹ thuật là **tự do** (push thẳng, nhánh + PR, pair, có hay không CI…). Cái bắt buộc:

@@ -2,3 +2,6 @@
 
 | Phase | Người | Công cụ / model | Việc | Token / chi phí ước tính | Ghi chú (AI sai ở đâu?) |
 |---|---|---|---|---|---|
+| 1 | Trần Văn Quang — OuyangXuelili | Codex; tên model không hiển thị trong phiên | Triển khai gather, test, công cụ kiểm kho/replay và bản bàn giao. Chưa có xác nhận con người đã review. | Không có thống kê token/chi phí phiên; không gọi API LLM từ ứng dụng | Test đầu dùng alias `python3` Windows Store, trả mã 9009; sửa helper dùng Python đang chạy trên Windows. |
+| 1 | Trần Văn Quang — OuyangXuelili | Codex; tên model không hiển thị trong phiên | Đọc PRD-0 trên tab Chrome sau người dùng đăng nhập, rà từng file và đối chiếu Test Contract D–G; sửa event và bổ sung test. | Không có thống kê token/chi phí phiên; không gọi API LLM từ ứng dụng | Ban đầu kết luận quá sớm từ trang chưa đăng nhập. PRD có đầy đủ luật; bản đầu dùng sai tên trường event. Đã sửa theo nguồn chính thức, không giữ giả định thay cho yêu cầu đã rõ. |
+| 1 | Trần Văn Quang — OuyangXuelili | Codex; tên model không hiển thị trong phiên | Rà diff, chạy lại kiểm chứng, tổ chức ba commit theo phạm vi và cập nhật link bàn giao theo yêu cầu người dùng. | Không có thống kê token/chi phí phiên; không gọi API LLM từ ứng dụng | Dùng email GitHub noreply; quét file bàn giao chưa phát hiện key hoặc đường dẫn người dùng. Chưa ghi nhận review chéo của thành viên. |

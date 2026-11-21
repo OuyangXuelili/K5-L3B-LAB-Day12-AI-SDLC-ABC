@@ -3,6 +3,8 @@
 > Cập nhật file này qua các phase (lịch sử git phải cho thấy điều đó). Ngắn gọn, có lệnh chạy thật.
 
 ## Lệnh
+- Kiểm tra phần Phase 1 trên Windows/Linux: `python tools/verify_phase1.py` (sinh bằng chứng tại `docs/proof/phase-1/verification.json`).
+- Kiểm file kho: `python tools/check_inventory.py docs/contracts/inventory.sample.json` (mã 0 hợp lệ, 2 sai dữ liệu).
 - Test: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v`
 - Headless: `python3 -m chonoi.headless --mode gather|quan --seed 1 --ticks 600 --out out.jsonl`
 - Chơi thử trên trình duyệt: `python3 -m chonoi.live --mode gather|quan` (mở địa chỉ in ra; WASD, E, Space, R)
@@ -26,4 +28,6 @@
 - Sáng tạo thêm được khuyến khích nhưng phải tắt ở headless (xem README, mục "Tự do sáng tạo").
 
 ## Skills / hooks của nhóm
-- (Ghi tên và khi nào dùng; tối thiểu 2 skill/hook/command nhóm tự viết, đặt ở `.agents/skills/` hoặc tương đương.)
+- `verify_phase1`: chạy trước khi bàn giao phần Quang; test toàn repo, kiểm TEAM/kho, replay cùng seed và probe hái → cập bến → quán. Command của nhóm nằm ở `tools/verify_phase1.py`.
+- `check_inventory`: chạy khi nhận/đổi file kho để phát hiện sai schema/id/số lượng; dùng `tools/check_inventory.py`.
+- Nguồn Phase 1: PRD-0 / Test Contract v1.0 tại tab Phase 1 trên lab board (link trong README, cần đăng nhập Claude để đọc dữ liệu). Phần gather đã đối chiếu D–G; ADR 0001 ghi thay đổi khi đối chiếu. Không coi test gather đạt là toàn Phase 1 hoàn tất.
