@@ -50,13 +50,14 @@ không đổi thành số test của bản cuối.
 - [x] Có mã, bộ test, bằng chứng P4, README và gói ZIP/checksum tại `dist/`.
 - [x] Có nhật ký AI, retro và hồ sơ cá nhân đủ bốn tệp trong repo.
 - [ ] Mỗi thành viên đọc lại phản tư và xác nhận đúng phần việc của mình.
-- [ ] Xác nhận TEAM và thỏa thuận; người trong nhóm review nhánh cuonglk.
+- [x] Nhóm đã thảo luận phân công và thống nhất thỏa thuận trong TEAM.
+- [ ] Người trong nhóm review mã và bằng chứng của nhánh cuonglk trước khi đẩy.
 - [ ] Push nhánh, tích hợp main, chạy lại kiểm chứng và đóng gói từ commit main.
 - [ ] Kiểm repo public, collaborator, GitHub nhận đúng tác giả và tag các phase.
 - [ ] Tag phase-4 và v1.0.0 cùng commit main; Release đính ZIP/checksum.
 - [ ] Chạy thử gói trên macOS/Linux hoặc ghi rõ chưa kiểm.
 - [ ] Demo trực tiếp hoặc video .mp4 dưới 5 phút theo checklist Ticket-04.
 
-Các ô còn trống là việc chưa có bằng chứng, không phải lỗi được phép đánh dấu
-đạt thay. Lịch sử tag và thời gian nộp thực tế cần đối chiếu GitHub; không tạo
-lại mốc thời gian để nhận đã nộp đúng hạn.
+Checklist này theo dõi thao tác phát hành ngoài phần code và báo cáo. Khi đẩy
+nhánh xong, Integrator tiếp tục tích hợp main, gắn tag và kiểm Release có gói tải
+về. Thời điểm bàn giao đối chiếu theo lịch sử GitHub.

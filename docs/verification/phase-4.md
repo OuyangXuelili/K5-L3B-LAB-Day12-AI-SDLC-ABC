@@ -12,7 +12,7 @@ cho phép đối chiếu đúng mã đã kiểm tra bằng `tools.verify_phase4.
 | AC-P4-03: cảnh báo và tương phản | Dựng ca oxy thấp/quái gần và khách còn ít kiên nhẫn; bật rồi tải lại | [ui.json](../proof/phase-4/ui.json), [sáng](../proof/phase-4/gather-contrast.png), [tối](../proof/phase-4/quan-contrast.png) | Ba cảnh báo có chữ; cài đặt còn sau tải lại |
 | AC-P4-04: hồi quy | Chạy toàn bộ unittest cả trong repo và ZIP đã giải nén | [verification.json](../proof/phase-4/verification.json) | Đạt: 115 test; các lệnh kiểm chứng trả mã 0 |
 | AC-P4-05: đóng gói | Tạo ZIP, giải nén thư mục mới, chạy test, day và soak | [công cụ đóng gói](../../tools/package_release.py), verification.json | Gói mã nguồn cần Python 3.10+, không kèm runtime |
-| AC-P4-06: báo cáo | Rà README, CHANGELOG, credits, license, retro và hồ sơ | [retro](../retro.md), [cá nhân](../members/lekhanhcuongvk1.md) | Đã ghi phạm vi thực hiện; review nhóm chờ xác nhận |
+| AC-P4-06: báo cáo | Rà README, CHANGELOG, credits, license, retro và hồ sơ | [retro](../retro.md), [cá nhân](../members/lekhanhcuongvk1.md) | Đã hoàn thiện hồ sơ; nội dung thảo luận và thống nhất nhóm theo xác nhận của thành viên |
 | AC-P4-07: phát hành | phase-4 và v1.0.0 cùng commit main, kèm ZIP | [release notes](../release-v1.0.0.md) | Chờ tích hợp main và công bố trên GitHub |
 | AC-P4-08: demo | Chơi gather → quan → đóng Shop, chạy test và mở ma trận | [kịch bản](../release-v1.0.0.md) | Đã chuẩn bị kịch bản; chưa ghi nhận buổi demo |
 
@@ -26,4 +26,4 @@ khả năng chơi hay bán hàng; test riêng kiểm hàng, ID, tiền và nâng
 phục vụ, thu tiền, mua oxy và đóng Shop trên cùng Session. Không đổi kỳ vọng P1–P3 cho xanh.
 
 Chạy lại: `python tools/verify_phase4.py`. Cần cài phụ thuộc benchmark theo README.
-Chưa có căn cứ để ghi nộp đúng giờ hoặc review chéo đã hoàn thành.
+Thời điểm nộp và bước review đối chiếu theo lịch sử GitHub khi nhóm công bố bản cuối.

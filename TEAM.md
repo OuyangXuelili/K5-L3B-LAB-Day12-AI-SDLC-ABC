@@ -13,9 +13,9 @@ Mỗi người giữ đầu mối một phase; các thành viên cùng hỗ tr�
 
 **Vai quy trình:** PO (đầu mối hỏi giảng viên, giữ `docs/clarify.md`) · Integrator (giữ `docs/contracts/`, gắn tag) · QA lead · Scrum/Release. Có thể kiêm.
 
-## Đề xuất thỏa thuận làm việc nhóm (chờ cả nhóm xác nhận)
+## Thỏa thuận làm việc nhóm
 
-- Kênh trao đổi: nhóm chọn khi kickoff; quyết định ảnh hưởng code được ghi vào `docs/clarify.md`.
+- Nhóm trao đổi trực tiếp và ghi lại quyết định ảnh hưởng code trong `docs/clarify.md` để các thành viên cùng theo dõi.
 - Bất đồng: nêu phương án và tác động; đầu mối phase quyết trong phạm vi đã thống nhất, vấn đề PRD hỏi PO.
 - Vướng quá 10 phút: báo đầu mối phase; người dự phòng hỗ trợ và cập nhật phân công thực tế.
 - Standup: một lượt giữa mỗi phase; mỗi người tự ghi phần mình trong `docs/standup.md`.

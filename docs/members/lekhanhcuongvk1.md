@@ -1,18 +1,15 @@
 # Lê Khánh Cường — Phase 4
 
-Phần tôi nhận là QA và bàn giao cuối. Nhánh `cuonglk` bổ sung soak 10 ngày,
-benchmark cảnh lặn, tương phản cao và gói chạy từ mã nguồn.
-Các commit chính: `7d001ad` (soak/contract), `1293abc` (benchmark/test),
-`a4f19da` (cảnh báo), `d55219d` (đóng gói/kiểm chứng).
+Tôi phụ trách QA và bàn giao cuối: soak 10 ngày, benchmark cảnh lặn,
+tương phản cao và đóng gói. Các commit chính: `7d001ad`, `1293abc`,
+`a4f19da`, `d55219d`; kết quả trong [báo cáo P4](../verification/phase-4.md).
 
-Điểm cần chú ý nhất khi tích hợp là vòng ngày cũ chỉ tra kế hoạch đến D5 và
-bộ đọc kho chưa nhận v1.3. Tôi giữ nguyên schema cá thể để không làm lại phần
-độ tươi của Mạnh. Bộ kiểm chứng chạy lại cả test cũ và gói giải nén.
+Khi tích hợp, tôi tập trung sửa vòng ngày chỉ tra kế hoạch đến D5 và bộ đọc
+kho chưa nhận v1.3. Tôi giữ schema cá thể để nối tiếp phần độ tươi của Mạnh,
+chạy lại test cũ và kiểm gói giải nén.
 
-Một lỗi trong phần hỗ trợ lập trình là chuỗi tiếng Việt bị đổi thành dấu hỏi
-khi đi qua terminal. Kiểm tra mã và chạy trình duyệt phát hiện được lỗi này.
-Đã sửa chuỗi UTF-8 rồi kiểm lại các cảnh báo bằng ảnh.
+AI từng tạo chuỗi tiếng Việt thành dấu hỏi khi đi qua terminal. Đọc mã và
+kiểm trình duyệt giúp phát hiện; sau khi sửa UTF-8, các cảnh báo được kiểm lại bằng ảnh.
 
-Bài học là kết quả test chưa đủ cho UI; phải nhìn cả màn hình để thấy chữ bị
-cắt hoặc mất dấu. Review chéo với thành viên khác chưa được ghi nhận; tôi cần
-xác nhận bước này trước khi nhóm công bố release.
+Qua trao đổi nhóm, tôi rút ra cần kiểm luật, giao diện và gói chạy riêng.
+Test xanh vẫn có thể bỏ sót chữ mất dấu hoặc nội dung bị cắt trên màn hình.

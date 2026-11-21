@@ -2,6 +2,12 @@
 
 ## Phase 4 — phần Cường, 21/11/2026
 
+- Lượt chỉnh văn phong: thành viên xác nhận nhóm đã thảo luận; cập nhật TEAM,
+  retro, standup và phản tư theo xác nhận đó. Giữ số đo và trạng thái phát hành
+  theo bằng chứng, không tự tạo commit trong lượt chỉnh này.
+- Rà hồ sơ trước push: kiểm liên kết nội bộ, rút phản tư Cường và Phan Anh về
+  giới hạn 200 từ, rà đủ file và tạo lại ZIP với tài liệu cập nhật.
+
 - Lượt hoàn thiện hồ sơ: bổ sung submission, kế hoạch P4, cập nhật kết quả ma trận
   và số liệu retro từ Git/bằng chứng; không bổ sung lời nhận xét giả của thành viên.
 

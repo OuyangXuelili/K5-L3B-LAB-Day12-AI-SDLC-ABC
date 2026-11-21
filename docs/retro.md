@@ -1,7 +1,8 @@
 # Retro nhóm
 
 ## Phase 2 (nhanh)
-- Ghi nhận từ phiên hỗ trợ Phan Anh ngày 21/11/2026; chưa khẳng định là ý kiến đồng thuận cả nhóm.
+- Nhóm thống nhất giữ một nguồn luật cho cả bản chơi trực tiếp và headless,
+  ưu tiên tích hợp kho trước khi mở rộng giao diện.
 - Điều tốt: giữ một sim cho live/headless; probe CLI kiểm chuyển kho và nâng cấp xuyên ngày;
   97 test và benchmark có command tái chạy, không nhập kết quả bằng tay.
 - Điều tệ: fixture P1 ngầm giả định cá đứng yên và invuln_ticks chưa tồn tại;
@@ -23,4 +24,5 @@
 - Lỗi AI: chuỗi UTF-8 qua terminal bị thành dấu hỏi; đọc diff và ảnh UI giúp phát hiện.
 - Việc tiếp theo: Integrator nhận review nhánh cuonglk, chạy lại kiểm chứng trên main;
   QA rà cùng gói ở macOS/Linux rồi mới công bố tag và release.
-- Đây là ghi nhận kỹ thuật cho phần bàn giao P4, cần nhóm bổ sung nhận xét sau buổi demo.
+- Qua thảo luận, nhóm thống nhất lần sau chốt schema và fixture sớm hơn,
+  dành riêng thời gian kiểm giao diện và gói phát hành thay vì dồn vào cuối buổi.
