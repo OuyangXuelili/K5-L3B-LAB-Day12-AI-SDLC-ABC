@@ -11,8 +11,14 @@
   biên tick/đổi pha, đo FPS thực ở 1280×720, ghi link review thật; không tự nhận đã hoàn tất.
 
 ## Phase 4 (cuối)
-- Rà lại hành động Phase 2: đã làm chưa? vì sao?
-- Điều tốt / điều tệ:
-- Số liệu: số commit theo người, cách đọc code của nhau, token theo người:
-- Một lần AI sai và cách nhóm phát hiện:
-- Nếu làm lại, đổi gì:
+- Rà hành động P2: đã có phép đo FPS thật ở 1280×720 và kiểm UI bằng ảnh. Chưa có
+  bằng chứng review chéo giữa người với người; việc này vẫn phải làm trước release.
+- Điều tốt: cùng một Session giúp soak dùng lại luật thật, không phải viết bản mô phỏng riêng.
+- Điều vướng: test luật không phát hiện chữ mất dấu hay hướng dẫn bị cắt ở cuối màn hình.
+  Phải kiểm bằng trình duyệt và tăng chỗ cho cảnh báo.
+- Số liệu đóng góp: xem `git shortlog -sne HEAD` và lịch sử nhánh; không tính các
+  commit của starter thành đóng góp nhóm. Token/chi phí không có số đo.
+- Lỗi AI: chuỗi UTF-8 qua terminal bị thành dấu hỏi; đọc diff và ảnh UI giúp phát hiện.
+- Việc tiếp theo: Integrator nhận review nhánh cuonglk, chạy lại kiểm chứng trên main;
+  QA rà cùng gói ở macOS/Linux rồi mới công bố tag và release.
+- Đây là ghi nhận kỹ thuật cho phần bàn giao P4, cần nhóm bổ sung nhận xét sau buổi demo.

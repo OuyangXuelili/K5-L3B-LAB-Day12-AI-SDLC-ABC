@@ -53,6 +53,47 @@ class Phase4(unittest.TestCase):
         self.assertEqual(result["p1_low_fps"], 10)
         self.assertEqual(result["frames"], 100)
 
+    def test_release_demo_serves_pays_buys_and_closes_shop(self):
+        from chonoi.scenario import load_scenario
+        tuning = load_contract()["tuning"]
+        path = Path(__file__).resolve().parents[1] / "docs/scenarios/phase-4-demo.json"
+        scenario = load_scenario(str(path), "day", tuning)
+        session = Session("day", tuning, scenario, 42)
+        controls = LiveInputs(BUTTONS_V11)
+        events = []
+
+        def step(**keys):
+            controls.set(**keys)
+            events.extend(session.step(controls.advance()))
+
+        step(interact=True)  # Dock with a real gather -> quan transfer.
+        step(interact=False)
+        step(interact=True)  # Start cooking at B1.
+        step(interact=False)
+        while session.sim.child.stoves[0]["state"] != "ready":
+            step()
+        step(interact=True)
+        step(interact=False)
+        self.assertIsNotNone(session.snapshot()["hand"])
+        for _ in range(240):
+            x, z = session.sim.child.pos
+            if (x-9)**2 + (z-2)**2 < .8**2:
+                break
+            dx, dz = 9-x, 2-z
+            length = (dx*dx+dz*dz)**.5
+            step(move=[dx/length, dz/length])
+        step(move=[0, 0], interact=True)
+        step(interact=False)
+        while session.sim.phase != "shop":
+            step()
+        self.assertTrue(any(e["name"] == "served" for e in events))
+        self.assertTrue(any(e["name"] == "paid" for e in events))
+        self.assertGreater(session.sim.earned, 200)
+        step(buy="oxygen", shop_done=True)
+        self.assertTrue(session.done)
+        self.assertEqual(session.end_row()["days_completed"], 1)
+        self.assertEqual(session.sim.upgrades["oxygen"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

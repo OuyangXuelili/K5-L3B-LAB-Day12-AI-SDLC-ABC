@@ -1,6 +1,15 @@
 # Changelog
 ## Unreleased
 
+## phase-4 — 21/11/2026 (nhánh cuonglk)
+
+- Contract 1.3, bench_cmd và soak_cmd; bộ đọc kho giữ schema v1.2.
+- Soak nhiều ngày lặp D1–D5 trong cùng Session; giữ RNG, ID, tiền và nâng cấp.
+- Đo FPS/1% low/load từ Chromium 1280×720, không quy đổi tốc độ mô phỏng thành FPS.
+- Cảnh báo bằng chữ độc lập, tương phản cao lưu theo trình duyệt; kiểm ba cảnh báo.
+- Gói ZIP/SHA-256, test bản giải nén, báo cáo và kịch bản release/demo.
+- Thêm 4 test hồi quy, gồm trọn luồng demo có phục vụ/thu tiền; không đổi yêu cầu test P1–P3. Tag/Release chờ tích hợp main.
+
 ## phase-3 — 21/11/2026
 
 - **Breaking change:** Test Contract v1.2 thay kho đếm bằng `{"items":[{"id":"I1","kind":"ca_loc","fresh":100}]}`. Kho rỗng dùng `{"items":[]}`. CLI v1.2 từ chối kho đếm bằng mã 2.

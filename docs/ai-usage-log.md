@@ -1,5 +1,14 @@
 # Nhật ký dùng AI (theo phase và theo người)
 
+## Phase 4 — phần Cường, 21/11/2026
+
+- Codex đọc Ticket-04 và mã main, hỗ trợ triển khai trên nhánh cuonglk theo yêu cầu.
+- Phạm vi: contract 1.3, soak, benchmark, cảnh báo/tương phản, đóng gói, test và tài liệu.
+- Bằng chứng được sinh bằng lệnh tại docs/proof/phase-4, không nhập số đo bằng tay.
+- Lỗi phát hiện: truyền chuỗi tiếng Việt qua terminal làm mất dấu; vòng kiểm UI đầu
+  còn thiếu lời gọi cập nhật cảnh báo. Đã sửa, chạy lại trình duyệt và lưu ảnh.
+- Không có thống kê token/chi phí. Chưa có review con người hoặc công bố release.
+
 ## Phiên hỗ trợ Phan Anh — 21/11/2026
 
 - Phase 2, alpha19102004: Codex triển khai theo Ticket-02 người dùng cung cấp;

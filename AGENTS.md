@@ -3,6 +3,8 @@
 > Cập nhật file này qua các phase (lịch sử git phải cho thấy điều đó). Ngắn gọn, có lệnh chạy thật.
 
 ## Lệnh
+- Phase 4: `python tools/verify_phase4.py` (test, soak/replay, benchmark, UI và gói giải nén).
+- Benchmark: `python -m chonoi.bench --seed 42 --duration 30 --out bench.json`; soak: `python -m chonoi.soak --seed 7 --days 10 --out soak.json`.
 - Phase 2 / Ticket-02 v1.1: `python tools/verify_phase2.py` (test P1+P2, replay ngày/Shop, kho và benchmark; sinh `docs/proof/phase-2/verification.json`).
 - Chơi vòng 5 ngày: `python -m chonoi.live --mode day --days 5`; headless: `python -m chonoi.headless --mode day --days 1 --seed 7 --ticks 22200 --out out.jsonl`.
 - Kiểm tra phần Phase 1 trên Windows/Linux: `python tools/verify_phase1.py` (sinh bằng chứng tại `docs/proof/phase-1/verification.json`).
@@ -30,6 +32,9 @@
 - Sáng tạo thêm được khuyến khích nhưng phải tắt ở headless (xem README, mục "Tự do sáng tạo").
 
 ## Skills / hooks của nhóm
+- `verify_phase4`: dùng trước bàn giao cuối; cần Playwright/Chromium cho phép đo render thật. Không suy FPS từ tốc độ headless.
+- `package_release`: `python tools/package_release.py`, dùng khi tạo ZIP/SHA-256. Không thêm file ngoài allowlist. Kiểm lại gói từ commit main trước tag.
+- V1.3 giữ kho v1.2; đọc ADR 0004 trước sửa benchmark/soak. Timer gameplay không dùng đồng hồ thực; phép đo hiệu năng được dùng perf_counter.
 - `verify_phase2`: chạy trước bàn giao phần Phan Anh; kiểm chứng đồng thời luật cũ và mới. `check_inventory` nay nhận đủ 6 id của Ticket-02; thử `python tools/check_inventory.py --contract-version 1.1 docs/contracts/inventory.phase2.sample.json`.
 - V1.1 theo Ticket-02 người dùng cung cấp: đọc ADR 0002 trước tích hợp. Khung phải đổi để hỗ trợ day/pause/buy; event kết thúc giữ pha cũ, snapshot pha mới có phase_tick=0. Không dùng kết quả test tự viết để khẳng định đã qua test ẩn hoặc review con người.
 - `verify_phase1`: chạy trước khi bàn giao phần Quang; test toàn repo, kiểm TEAM/kho, replay cùng seed và probe hái → cập bến → quán. Command của nhóm nằm ở `tools/verify_phase1.py`.
