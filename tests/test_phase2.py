@@ -226,6 +226,17 @@ class Phase2(unittest.TestCase):
                 code, _ = run_headless("--mode", mode, "--seed", "1", "--ticks", "0", "--out", w.path("out.jsonl"), *extra)
                 self.assertEqual(code, 2)
 
+    def test_phase_change_forces_snapshot_even_between_snapshot_intervals(self):
+        with Workdir() as w:
+            sc = write_json(w.path("sc.json"), {"gather": {"time_left_ticks": 1}, "quan": {"time_left_ticks": 1}})
+            out = w.path("o.jsonl")
+            code, err = run_headless("--mode", "day", "--seed", "1", "--ticks", "3", "--scenario", sc, "--out", out, "--snapshot-every", "10")
+            self.assertEqual(code, 0, err)
+            snaps = snapshots(read_jsonl(out))
+            self.assertIn((1, "quan", 0), [(s["tick"], s["phase"], s["phase_tick"]) for s in snaps])
+            self.assertIn((2, "shop", 0), [(s["tick"], s["phase"], s["phase_tick"]) for s in snaps])
+            self.assertEqual(len(snaps), len({s["tick"] for s in snaps}))
+
     def test_multi_day_cli_is_byte_identical_and_closes_last_shop(self):
         with Workdir() as w:
             sc = write_json(w.path("sc.json"), {"gather": {"time_left_ticks": 1}, "quan": {"time_left_ticks": 1}})

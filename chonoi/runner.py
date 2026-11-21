@@ -112,10 +112,12 @@ def run(mode, tuning, scenario, seed, frames, ticks, out_path, snapshot_every, i
             w.write(row)
         last_snapped = 0
         while sess.tick < ticks and not sess.done:
+            previous_phase = (sess.sim.phase, getattr(sess.sim, "day", None))
             inp = player.advance(sess.tick)  # bước k đọc input có tick == k
             for row in sess.step(inp):
                 w.write(row)
-            if sess.tick % snapshot_every == 0 or sess.done:
+            changed_phase = previous_phase != (sess.sim.phase, getattr(sess.sim, "day", None))
+            if sess.tick % snapshot_every == 0 or sess.done or changed_phase:
                 w.write(sess.snapshot())
                 last_snapped = sess.tick
         if last_snapped != sess.tick:

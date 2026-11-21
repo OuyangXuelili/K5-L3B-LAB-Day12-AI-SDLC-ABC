@@ -1,4 +1,4 @@
-"""Kiểm file kho v1.0: python tools/check_inventory.py [inventory.json]."""
+"""Kiểm kho v1.1 (gồm hai id mới), giữ schema v1.0."""
 import argparse
 import json
 from pathlib import Path
@@ -12,7 +12,7 @@ from chonoi.inventory import read_inventory
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Validate a Phase 1 inventory without changing it")
+    parser = argparse.ArgumentParser(description="Validate a v1.1 inventory without changing it")
     parser.add_argument("path", nargs="?", type=Path,
                         default=ROOT / "docs/contracts/inventory.sample.json")
     args = parser.parse_args(argv)

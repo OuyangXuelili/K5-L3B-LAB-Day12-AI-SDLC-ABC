@@ -2,6 +2,10 @@
 
 | # | Ngày giờ | Câu hỏi | Trả lời / giả định | Ai quyết |
 |---|---|---|---|---|
+| P2-01 | 21/11/2026 | Có được đổi contract/kho không? | Người dùng giao hoàn thiện Phase 2 theo Ticket-02; 4.1 yêu cầu v1.1, thêm ca_keo/keo_neo, ngày/Shop/pause. Giữ schema kho, mở rộng id. ADR 0002 ghi tác động để nhóm nhận bàn giao. | Theo ticket và yêu cầu hiện tại; chưa ghi đã họp nhóm |
+| P2-02 | 21/11/2026 | Payload/fixture quán PRD-0 có đọc được trong phiên không? | Chưa. Ticket-02 không lặp lại toàn bộ; lab board không đọc được qua web. Cửa sổ Edge hiện là Zalo nên auto-review chặn đọc vì riêng tư. Định dạng đang dùng ở ADR 0002; cần PO đối chiếu, không coi là đáp án giảng viên. | Câu hỏi còn mở cho PO |
+| P2-03 | 21/11/2026 | Vì sao cập nhật test P1? | v1.1 tăng đàn 6→8, hỗ trợ day, attack đúng kiểu được bỏ qua khi tắt mở rộng, nhận invuln_ticks. Fixture cũ giữ đứng yên bằng random_fish:false; vẫn giữ assertion cũ cho luật bắt. Có test v1.1 riêng. | Theo Ticket-02 4.1–4.3 |
+| P2-04 | 21/11/2026 | Đã đủ điều kiện tuyên bố toàn Phase 2 hoàn tất chưa? | Đã có bản local chạy, test và bằng chứng. Chưa review chéo, chưa đối chiếu đầy đủ quán PRD-0, chưa đo FPS/QA hình ảnh và chưa push tag. Không thể xác nhận nộp đúng giờ lab. | Trạng thái thực tế |
 | P1-01 | 21/11/2026 | Vì sao phiên truy cập đầu không đọc được PRD-0? | Đã xử lý: trang chưa đăng nhập chỉ hiện ngăn rỗng và yêu cầu đăng nhập để đọc dữ liệu. Sau khi người dùng đăng nhập trên Chrome, đã đọc đầy đủ PRD-0/Test Contract v1.0 ở tab Phase 1. Link nguồn ở README. | Đối chiếu trực tiếp lab board; không có trả lời giả từ trợ giảng |
 | P1-02 | 21/11/2026 | Đàn cá cho nhiều nguyên liệu nhưng giỏ chỉ còn ít chỗ thì xử lý thế nào? | Đã có quy định ở F/Gather bước 4: nhận trọn yield; thiếu chỗ báo `hold_full`, giữ đàn và cooldown, không thử đàn khác. Code và test đã đối chiếu. | Theo PRD-0; đóng câu hỏi |
 | P1-03 | 21/11/2026 | Tick oxy giảm về 0 có tính vào bộ đếm ngạt không? | Có, theo F/Gather bước 2; nếu chạm 0 ở t thì ngạt đầu tiên ở t+59 khi tiếp tục dưới nước. Nổi lên đúng tick ngạt thì hồi oxy và không mất Máu. | Theo PRD-0; đóng câu hỏi |

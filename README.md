@@ -3,7 +3,46 @@
 > **Làm theo nhóm 4–6 người** · Dùng AI để xây game 2D qua **4 phase** trong **3 giờ**: Út Sen lặn bắt cá, hái rau trên mặt nước rồi tối mở quán phục vụ khách.
 > **Yêu cầu từng phase mở đúng mốc giờ tại lab board:** **[Chợ Nổi Lab](https://claude.ai/artifact/E35v787wSx2wDgPTNhMVDg)** (cần đăng nhập claude.ai; có trợ giảng AI cho từng phase).
 
-## Nhóm ABC — phần Quang, Phase 1
+## Nhóm ABC — Phan Anh, Phase 2 / Ticket-02
+
+Đã tích hợp contract v1.1: quán có 2 bếp, 4 bàn, 6 món; khách giữ nguyên liệu,
+nấu/bưng/phục vụ/thu tiền và uy tín. Vòng ngày nối lặn → quán → Shop, kế hoạch
+5 ngày, nâng bình oxy/áo phao từ ngày sau, pause, cá bơi/sinh và cá sấu.
+Giao diện có menu, giới thiệu, kết quả và HUD. Chỉ cần Python 3, không thêm dependency.
+
+```powershell
+python tools/verify_phase2.py
+python -m chonoi.live --mode day --days 5
+```
+
+Mở địa chỉ terminal in ra, chọn **Chơi**. WASD/mũi tên di chuyển, **E** hái/cập bến/
+nấu/bưng/phục vụ, **Space** bắt cá, **P/Esc** pause, **R** chơi lại.
+Shop dùng nút mua và **Xong**. E/Space cần nhả rồi bấm lại.
+Ở quán, E tại bếp lấy đơn chờ cũ nhất; món chín thì E bưng, mang đến đúng bàn rồi E giao.
+Tiền là nghìn đồng; điểm = earned + 100 × floor(reputation). Mua nâng cấp chỉ giảm money.
+
+Demo rút ngắn **có tiền/kho dựng sẵn**, không phải bằng chứng hái thật:
+
+```powershell
+python -m chonoi.live --mode day --days 2 --scenario docs/scenarios/phase-2-demo.json
+python -m chonoi.headless --mode day --days 1 --seed 7 --ticks 22200 --out out.jsonl
+python tools/check_inventory.py docs/contracts/inventory.phase2.sample.json
+```
+
+Chế độ độc lập vẫn hỗ trợ gather xuất kho và quan nạp kho theo lệnh bên dưới.
+`day` tự chuyển kho trong bộ nhớ, không nhận cờ file kho. macOS/Linux dùng `python3` nếu cần.
+
+Tài liệu hiện tại: [bàn giao Phase 2](docs/verification/phase-2.md),
+[JSON kiểm chứng](docs/proof/phase-2/verification.json),
+[ADR 0002](docs/adr/0002-phase2-v11.md),
+[hồ sơ Phan Anh](docs/members/alpha19102004.md).
+Chưa có review chéo, đối chiếu đầy đủ payload quán PRD-0, QA hình ảnh/FPS hoặc push tag.
+Không coi test do nhóm viết là kết quả test ẩn hay bằng chứng nộp đúng giờ.
+Codex hỗ trợ tích hợp phần phụ thuộc, không ghi thay đóng góp của Quang/Mạnh/Cường.
+
+## Lịch sử bàn giao phần Quang, Phase 1
+
+Phần này giữ mô tả từ baseline P1; trạng thái quán hiện tại theo mục Phase 2 ở trên.
 
 Phân công và GitHub handle ở [TEAM.md](TEAM.md). Đợt này hoàn thiện luật
 lặn/thu thập trong `sim/gather`: oxy, ngạt, ngất, hái/mọc lại, bắt cá/hồi chiêu,

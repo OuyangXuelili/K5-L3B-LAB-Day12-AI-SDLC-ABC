@@ -3,3 +3,6 @@ Liệt kê asset ngoài (nguồn, giấy phép CC0/CC-BY/MIT) và công cụ AI 
 
 - Khung game và cửa sổ thử: [starter Day 12 của VinUni-AI20k](https://github.com/VinUni-AI20k/K5-L3B-LAB-Day12-AI-SDLC). Giữ nguồn và cấu hình đi kèm; đợt phần Quang không thêm asset ngoài.
 - Hỗ trợ lập trình phần Quang: Codex; phạm vi và giới hạn ghi trong `docs/ai-usage-log.md`.
+- Phase 2 / Phan Anh: giao diện dùng Canvas, CSS và font hệ thống, tự dựng từ hình học;
+  không tải ảnh, âm thanh hay asset ngoài. Codex hỗ trợ lập trình/test/tài liệu,
+  ghi tại `docs/ai-usage-log.md`. Không thêm dependency vào game.

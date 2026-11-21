@@ -88,12 +88,12 @@ def main(argv=None):
         probe = {"status": "failed", "error": str(exc).replace(str(ROOT), "<repo>")}
     passed = all(check["exit_code"] == 0 for check in checks) and probe["status"] == "passed"
     report = {"generated_at_utc": datetime.now(timezone.utc).isoformat(),
-              "scope": "Quang: gather rules, starter regressions, team metadata and inventory integration",
+              "scope": "Phase 1 regressions on current contract, team metadata and gather inventory integration",
               "status": "passed" if passed else "failed", "checks": checks, "integration": probe,
               "reference": {"title": "PRD-0 — Phase 1 / Test Contract v1.0",
                             "url": "https://claude.ai/artifact/E35v787wSx2wDgPTNhMVDg#phase-1",
                             "reviewed_sections": ["A", "B", "C", "D (gather)", "E (gather)", "F (Gather)", "G"]},
-              "limitations": ["Quan gameplay and final UI remain assigned to other members.",
+              "limitations": ["This probe covers gather/inventory; use verify_phase2 for day, Shop and benchmark evidence.",
                               "No human review, phase tag, deadline compliance or team agreement is asserted."]}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",

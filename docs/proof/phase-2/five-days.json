@@ -1,0 +1,19 @@
+{
+  "seed": 7,
+  "ticks_requested": 111000,
+  "end": {
+    "type": "end",
+    "ticks": 111000,
+    "sim_tick": 111000,
+    "mode": "day",
+    "state": "finished",
+    "reason": "days_complete",
+    "money": 0,
+    "earned": 0,
+    "reputation": 3.0,
+    "score": 300,
+    "days_completed": 5
+  },
+  "closed_shops": 5,
+  "jsonl_sha256": "0e551e521e144120494a8f6111876369bf62ba54a4cdadf8b212fee1fc33f9a9"
+}

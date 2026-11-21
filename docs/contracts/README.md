@@ -1,5 +1,61 @@
 # Hợp đồng tích hợp (nên chốt sớm; hình thức do nhóm chọn)
 
+## Cập nhật Phase 2 theo Ticket-02 / v1.1
+
+Phần này thay các mô tả P1 bên dưới nếu có khác biệt. [ADR 0002](../adr/0002-phase2-v11.md)
+ghi tác động contract và lý do sửa khung; đây là thông tin bàn giao, chưa khẳng định đã họp nhóm.
+
+- Kho giữ cấu trúc `{items:{kind:count}}`; nhận thêm `ca_keo`, `keo_neo`.
+  Mẫu mới: `inventory.phase2.sample.json`; mẫu P1 vẫn hợp lệ.
+- CLI thêm `day --days 1..5` (mặc định 1), tự chuyển kho trong bộ nhớ.
+  Hai cờ file kho chỉ dùng với gather/quan độc lập như P1.
+- Input boolean v1.1: `interact`, `catch`, `pause`, `shop_done`, `attack`, `photo`;
+  các nút mở rộng chưa bật được bỏ qua. Tất cả chỉ phát ở cạnh lên, giữ qua pha
+  không sinh cạnh mới. `buy` là chuỗi chỉ có hiệu lực tại frame chứa nó.
+- Session xét pause trước; lúc pause chỉ tăng tick ngoài, không tăng sim_tick/phase_tick,
+  không xử lý buy/hành động. Resume chạy mô phỏng ngay trong bước đó.
+- Day snapshot có `day`, `day_plan`, `upgrades`, `active_upgrades`; `phase` là
+  gather/quan/shop. Event kết thúc thuộc pha/ngày cũ; snapshot đổi pha bắt buộc
+  có pha mới và phase_tick=0 dù không trúng snapshot-every. `end.days_completed`
+  chỉ tăng khi Shop đóng, kể cả ngày cuối.
+- Live dùng `/input` thêm các điều khiển trình bày `continue`, `menu`;
+  đây không phải trường input của headless. Menu/intro/kết quả không chạy gameplay.
+
+### Quán: định dạng hiện triển khai, chờ PO đối chiếu PRD-0
+
+Ticket-02 nhắc lại luật nhưng không liệt kê lại toàn bộ fixture/event quán v1.0.
+Các tên/payload sau là giao diện trong bản triển khai này, chưa khẳng định đã đối chiếu hết nguồn v1.0.
+
+- Customer: `id`, `table_id`, `order_id` (mặc định id khách), `dish_id`, `state`
+  waiting/eating, `order_status` reserved/assigned/unfulfillable, `order_tick`,
+  `patience_ticks_left`; eating cần `eat_ticks_left`, `price`, `tip`.
+- `reserved` suy ra từ recipe khi đơn reserved; tổng giữ không được vượt `stock`.
+  `available_stock` = stock trừ tổng giữ. Bắt đầu nấu mới trừ stock và bỏ phần giữ.
+- Món trên tay/bếp: `{order_id,dish_id}`. Đơn waiting/assigned phải có đúng một món
+  ở một bếp hoặc trên tay; eating không còn món mang đi. Bếp có
+  state idle/cooking/ready, cook_ticks_left và ready_ticks.
+- Khách hết kiên nhẫn: giải phóng phần giữ hoặc hủy món đã nấu, trừ uy tín khi còn giờ.
+  Hết ca: khách eating trả ngay, waiting rời không phạt; dọn bếp/tay/giữ chỗ.
+
+| Event quán hiện dùng | Payload |
+|---|---|
+| customer_arrived | customer_id, table_id, order_id, dish_id, order_tick |
+| no_dish | table_id |
+| cook_started / dish_ready / dish_picked | stove_id, order_id, dish_id |
+| served | customer_id, table_id, order_id, dish_id, price, tip |
+| paid | customer_id, table_id, order_id, dish_id, price, tip, amount, money, reputation |
+| customer_left | customer_id, table_id, order_id, reason (patience/closing), reputation |
+| quan_end | reason:time, money, earned, shift_earned, reputation |
+
+Event mới theo Ticket-02: `monster_hit {monster_id,hp,lost,pos}`,
+`fish_spawned {id,kind,pos}`, `faint` thêm cause:monster;
+`day_start {}`, `day_plan {dishes,ingredients}`, `phase_start {}`,
+`paused/resumed {}`, `bought {upgrade,level,price,money}`,
+`buy_failed {action,reason}`, `shop_end {reason:done|time}`.
+Event ở mode day có thêm `day` ở vỏ; lost giữ LIFO. Số liệu trong manifest.
+
+Các phần dưới đây là lịch sử bàn giao P1, không phải trạng thái hiện tại của quán.
+
 Điền trong 15 phút kickoff (hoặc thay bằng một mục trong README / một bảng trên giấy, miễn cả nhóm cùng thống nhất):
 1. **Schema file kho** — khớp mục G của PRD-0 (kho ghi khi `gather_end`) + một file kho mẫu hợp lệ: `inventory.sample.json`.
 2. **Giao diện giữa `sim/*` và `client/ui`** — trạng thái nào UI được đọc, lệnh nào UI gửi vào.

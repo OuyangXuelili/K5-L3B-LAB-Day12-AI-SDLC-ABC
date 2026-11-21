@@ -3,6 +3,8 @@
 > Cập nhật file này qua các phase (lịch sử git phải cho thấy điều đó). Ngắn gọn, có lệnh chạy thật.
 
 ## Lệnh
+- Phase 2 / Ticket-02 v1.1: `python tools/verify_phase2.py` (test P1+P2, replay ngày/Shop, kho và benchmark; sinh `docs/proof/phase-2/verification.json`).
+- Chơi vòng 5 ngày: `python -m chonoi.live --mode day --days 5`; headless: `python -m chonoi.headless --mode day --days 1 --seed 7 --ticks 22200 --out out.jsonl`.
 - Kiểm tra phần Phase 1 trên Windows/Linux: `python tools/verify_phase1.py` (sinh bằng chứng tại `docs/proof/phase-1/verification.json`).
 - Kiểm file kho: `python tools/check_inventory.py docs/contracts/inventory.sample.json` (mã 0 hợp lệ, 2 sai dữ liệu).
 - Test: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v`
@@ -28,6 +30,8 @@
 - Sáng tạo thêm được khuyến khích nhưng phải tắt ở headless (xem README, mục "Tự do sáng tạo").
 
 ## Skills / hooks của nhóm
+- `verify_phase2`: chạy trước bàn giao phần Phan Anh; kiểm chứng đồng thời luật cũ và mới. `check_inventory` nay nhận đủ 6 id của Ticket-02; thử `python tools/check_inventory.py docs/contracts/inventory.phase2.sample.json`.
+- V1.1 theo Ticket-02 người dùng cung cấp: đọc ADR 0002 trước tích hợp. Khung phải đổi để hỗ trợ day/pause/buy; event kết thúc giữ pha cũ, snapshot pha mới có phase_tick=0. Không dùng kết quả test tự viết để khẳng định đã qua test ẩn hoặc review con người.
 - `verify_phase1`: chạy trước khi bàn giao phần Quang; test toàn repo, kiểm TEAM/kho, replay cùng seed và probe hái → cập bến → quán. Command của nhóm nằm ở `tools/verify_phase1.py`.
 - `check_inventory`: chạy khi nhận/đổi file kho để phát hiện sai schema/id/số lượng; dùng `tools/check_inventory.py`.
 - Nguồn Phase 1: PRD-0 / Test Contract v1.0 tại tab Phase 1 trên lab board (link trong README, cần đăng nhập Claude để đọc dữ liệu). Phần gather đã đối chiếu D–G; ADR 0001 ghi thay đổi khi đối chiếu. Không coi test gather đạt là toàn Phase 1 hoàn tất.
